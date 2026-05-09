@@ -319,6 +319,33 @@
       border-radius: 5px;
       line-height: 1.5;
     }
+
+    /* Attachments */
+    #attachmentSection {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      padding: 4px 0;
+    }
+    .attach-img-item { position: relative; display: inline-block; }
+    .attach-thumb {
+      width: 64px; height: 48px; object-fit: cover;
+      border-radius: 5px; border: 1px solid var(--border); display: block;
+    }
+    .attach-del {
+      position: absolute; top: -5px; right: -5px;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: var(--accent); border: none;
+      color: white; font-size: 9px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      padding: 0; line-height: 1;
+    }
+.add-region-btn {
+      padding: 5px 10px; background: transparent;
+      border: 1px solid var(--border); border-radius: var(--radius);
+      color: var(--muted); font-size: 11px; cursor: pointer;
+      font-family: 'Space Grotesk', sans-serif; transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .add-region-btn:hover { border-color: var(--accent); color: var(--accent); }
   </style>
 </head>
 <body style="position:relative">
@@ -335,7 +362,7 @@
 
   <p>Extension này giúp bạn điều hướng web bằng AI. Để hoạt động, extension cần gửi dữ liệu lên AI provider bạn chọn:</p>
   <ul>
-    <li><strong>Screenshot</strong> trang hiện tại (OpenAI, Claude, Qwen)</li>
+    <li><strong>Screenshot</strong> toàn trang hoặc <strong>vùng màn hình</strong> bạn chọn (OpenAI, Claude, Qwen)</li>
     <li><strong>Text DOM</strong> của trang (DeepSeek — thông tin cá nhân tự động ẩn)</li>
     <li><strong>Câu hỏi/Task</strong> bạn nhập</li>
   </ul>
@@ -410,6 +437,12 @@
     <div class="quick-prompts" style="margin-top:6px">
       <button class="qp" data-q="Bước tiếp theo tôi cần làm gì trên trang này?">❓ Bước tiếp theo</button>
     </div>
+  </div>
+
+  <!-- Attachments: region images + text snippets -->
+  <div id="attachmentSection" style="display:none"></div>
+  <div>
+    <button class="add-region-btn" id="addRegionBtn">🖼 Thêm vùng màn hình</button>
   </div>
 
   <div class="actions">

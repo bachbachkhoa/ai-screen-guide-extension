@@ -35,7 +35,7 @@
 <div class="container">
 
   <h1>Chính sách quyền riêng tư</h1>
-  <div class="meta">AI Screen Guide Extension &nbsp;·&nbsp; Cập nhật lần cuối: 2026-05-09</div>
+  <div class="meta">AI Screen Guide Extension &nbsp;·&nbsp; Cập nhật lần cuối: 2026-05-09 &nbsp;·&nbsp; v1.1.0</div>
 
   <div class="highlight">
     <p>Extension này <strong>không có server riêng</strong>. Mọi dữ liệu chỉ đi thẳng từ trình duyệt của bạn đến AI provider bạn chọn, và không được lưu trữ bởi chúng tôi.</p>
@@ -43,7 +43,8 @@
 
   <h2>1. Dữ liệu nào được thu thập</h2>
   <ul>
-    <li><strong>Screenshot trang web hiện tại</strong> — chụp màn hình vùng hiển thị khi bạn nhấn "Scan". Chỉ áp dụng với provider OpenAI, Claude, Qwen.</li>
+    <li><strong>Screenshot trang web hiện tại</strong> — chụp màn hình vùng hiển thị khi bạn nhấn "Scan" (không chọn vùng). Chỉ áp dụng với provider OpenAI, Claude, Qwen.</li>
+    <li><strong>Vùng màn hình do bạn chọn</strong> — nếu bạn dùng tính năng "Thêm vùng màn hình", chỉ các vùng bạn kéo chọn mới được crop và gửi lên AI (thay thế cho screenshot toàn trang). Tối đa 5 vùng, được ghép dọc thành 1 ảnh trước khi gửi.</li>
     <li><strong>Nội dung DOM (text)</strong> — trích xuất text từ các nút, link, input trên trang. Chỉ áp dụng với provider DeepSeek. Thông tin cá nhân (email, SĐT, CCCD...) được tự động ẩn trước khi gửi.</li>
     <li><strong>Câu hỏi/Task bạn nhập</strong> — nội dung trong ô "Câu hỏi / Task" được gửi kèm lên AI provider.</li>
     <li><strong>API Key</strong> — được lưu trong <code>chrome.storage.local</code> trên máy của bạn. Không bao giờ được gửi đến server nào ngoài AI provider tương ứng.</li>
@@ -63,7 +64,7 @@
   <ul>
     <li>API key được lưu trong <code>chrome.storage.local</code> — chỉ tồn tại trên trình duyệt của bạn.</li>
     <li>Câu hỏi gần nhất (<code>lastPrompt</code>) được lưu local để tiện nhập lại.</li>
-    <li>Screenshot và DOM text <strong>không được lưu lại</strong> sau khi gửi đi — chúng chỉ tồn tại trong bộ nhớ tạm trong quá trình phân tích.</li>
+    <li>Screenshot, vùng ảnh đã chọn và DOM text <strong>không được lưu lại</strong> sau khi gửi đi — chúng chỉ tồn tại trong <code>chrome.storage.session</code> (xóa khi đóng tab hoặc sau khi Scan).</li>
     <li>Extension <strong>không có database, không có server, không theo dõi lịch sử sử dụng</strong>.</li>
   </ul>
 
@@ -75,7 +76,7 @@
   </ul>
 
   <h2>5. Dữ liệu nhạy cảm</h2>
-  <p>Nếu trang web bạn đang xem có chứa thông tin nhạy cảm (mật khẩu hiển thị, số thẻ ngân hàng, thông tin cá nhân), hãy đảm bảo thông tin đó không hiển thị trên màn hình trước khi nhấn Scan.</p>
+  <p>Nếu trang web bạn đang xem có chứa thông tin nhạy cảm (mật khẩu hiển thị, số thẻ ngân hàng, thông tin cá nhân), hãy đảm bảo thông tin đó không nằm trong vùng màn hình bạn chọn — hoặc không hiển thị trên màn hình nếu dùng chế độ Scan toàn trang.</p>
   <p>Với DeepSeek (DOM mode), extension tự động ẩn: email, số điện thoại, CCCD, mã số định danh trước khi gửi lên AI.</p>
 
   <h2>6. Liên hệ</h2>

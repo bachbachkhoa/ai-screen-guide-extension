@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "AI Screen Guide",
-  "version": "1.0.0",
-  "description": "Scan màn hình, AI chỉ ra nút cần bấm với vòng đỏ highlight",
+  "version": "1.1.0",
+  "description": "Scan màn hình hoặc chọn vùng cụ thể, AI chỉ ra nút cần bấm với vòng đỏ highlight",
   "permissions": [
     "activeTab",
     "tabs",

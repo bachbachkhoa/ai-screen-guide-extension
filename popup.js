@@ -191,6 +191,8 @@ Hãy chia task thành các bước, mỗi bước trên một trang web. Trả v
 Quy tắc: step_index 0 là trang hiện tại, step_index N>0 là trang sau khi click bước N-1. url_pattern phải đủ cụ thể (path, không chỉ domain), KHÔNG dùng "/" vì match mọi trang. Nếu không đoán được URL tiếp theo: để url_pattern là "".`;
 }
 
+let activeTabId = null;
+
 // --- First-run consent ---
 (function initConsent() {
   chrome.storage.local.get('consentGiven', ({ consentGiven }) => {
@@ -248,6 +250,95 @@ function showTempFeedback(btnId, text) {
   setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, 2000);
 }
 
+// --- Attachment rendering ---
+function renderAttachments(cropItems) {
+  const section = document.getElementById('attachmentSection');
+  if (!section) return;
+  section.innerHTML = '';
+  if (cropItems.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = 'flex';
+
+  cropItems.forEach((dataUrl, i) => {
+    const item = document.createElement('div');
+    item.className = 'attach-img-item';
+    const img = document.createElement('img');
+    img.src = dataUrl;
+    img.className = 'attach-thumb';
+    const del = document.createElement('button');
+    del.className = 'attach-del';
+    del.textContent = '✕';
+    del.title = 'Xóa ảnh';
+    del.addEventListener('click', async () => {
+      const key = 'cropAttachments_' + activeTabId;
+      const s = await chrome.storage.session.get(key);
+      const arr = (s[key] || []);
+      arr.splice(i, 1);
+      await chrome.storage.session.set({ [key]: arr });
+      await reloadAndRenderAttachments();
+    });
+    item.appendChild(img);
+    item.appendChild(del);
+    section.appendChild(item);
+  });
+}
+
+async function reloadAndRenderAttachments() {
+  if (!activeTabId) return;
+  const cropKey = 'cropAttachments_' + activeTabId;
+  const stored = await chrome.storage.session.get(cropKey);
+  renderAttachments(stored[cropKey] || []);
+}
+
+async function stitchImages(dataUrls) {
+  const imgs = await Promise.all(dataUrls.map(url => new Promise(res => {
+    const i = new Image();
+    i.onload = () => res(i);
+    i.src = url;
+  })));
+  const maxW = Math.max(...imgs.map(i => i.naturalWidth));
+  const totalH = imgs.reduce((sum, i) => sum + i.naturalHeight, 0);
+  const canvas = document.createElement('canvas');
+  canvas.width = maxW;
+  canvas.height = totalH;
+  const ctx = canvas.getContext('2d');
+  let y = 0;
+  imgs.forEach(i => { ctx.drawImage(i, 0, y); y += i.naturalHeight; });
+  return canvas.toDataURL('image/png');
+}
+
+// Add region button
+document.getElementById('addRegionBtn')?.addEventListener('click', async () => {
+  console.log('[addRegionBtn] click fired');
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  console.log('[addRegionBtn] tab:', tab?.id, tab?.url);
+  if (!tab) return;
+  const key = 'cropAttachments_' + tab.id;
+  const stored = await chrome.storage.session.get(key);
+  const count = (stored[key] || []).length;
+  console.log('[addRegionBtn] current crop count:', count);
+  if (count >= 5) {
+    showResult('⚠️ Đã đạt tối đa 5 vùng ảnh', true);
+    return;
+  }
+  console.log('[addRegionBtn] sending START_REGION_SELECT to tab', tab.id);
+  chrome.tabs.sendMessage(tab.id, { type: 'START_REGION_SELECT' }, (resp) => {
+    if (chrome.runtime.lastError) {
+      console.log('[addRegionBtn] content script not ready, injecting...', chrome.runtime.lastError.message);
+      chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['content.js'] }, () => {
+        chrome.scripting.insertCSS({ target: { tabId: tab.id }, files: ['overlay.css'] }, () => {
+          chrome.tabs.sendMessage(tab.id, { type: 'START_REGION_SELECT' }, () => window.close());
+        });
+      });
+      return;
+    }
+    console.log('[addRegionBtn] sendMessage ok, resp:', resp);
+    window.close();
+  });
+});
+
 const scanBtn = document.getElementById('scanBtn');
 const clearBtn = document.getElementById('clearBtn');
 const resultBox = document.getElementById('resultBox');
@@ -282,12 +373,13 @@ chrome.storage.local.get(null, (data) => {
 chrome.tabs.query({ active: true, currentWindow: true }, async ([tab]) => {
   if (!tab) return;
   activeTabId = tab.id;
-  const key = 'guide_plan_' + tab.id;
-  const stored = await chrome.storage.session.get(key);
-  const plan = stored[key];
-  if (plan && plan.status === 'active') {
-    showGuidedFlowUI(plan);
+  const cropKey = 'cropAttachments_' + tab.id;
+  const guidePlanKey = 'guide_plan_' + tab.id;
+  const stored = await chrome.storage.session.get([guidePlanKey, cropKey]);
+  if (stored[guidePlanKey]?.status === 'active') {
+    showGuidedFlowUI(stored[guidePlanKey]);
   }
+  renderAttachments(stored[cropKey] || []);
 });
 
 const screenshotNote = document.getElementById('screenshotNote');
@@ -369,9 +461,17 @@ scanBtn.addEventListener('click', async () => {
 
     const provider = PROVIDERS[currentProvider];
     let aiInput;
-
     const model = modelSelect.value;
-    if (providerUsesDOM(currentProvider, model)) {
+
+    // Read crop attachments
+    const cropKey = 'cropAttachments_' + tab.id;
+    const attachStored = await chrome.storage.session.get(cropKey);
+    const cropItems = attachStored[cropKey] || [];
+
+    // Determine input: crop images take precedence for vision providers
+    if (cropItems.length > 0 && !providerUsesDOM(currentProvider, model)) {
+      aiInput = cropItems.length === 1 ? cropItems[0] : await stitchImages(cropItems);
+    } else if (providerUsesDOM(currentProvider, model)) {
       const results = await chrome.scripting.executeScript({
         target: { tabId: tab.id },
         func: extractDOMText
@@ -428,6 +528,13 @@ scanBtn.addEventListener('click', async () => {
     }
 
     showGuidedFlowUI(plan);
+
+    // Clear attachments after successful scan
+    if (cropItems.length > 0) {
+      await chrome.storage.session.remove(cropKey);
+      try { chrome.action.setBadgeText({ text: '', tabId: tab.id }); } catch {}
+      renderAttachments([]);
+    }
 
   } catch (err) {
     console.error(err);

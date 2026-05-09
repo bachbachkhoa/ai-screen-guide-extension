@@ -191,6 +191,63 @@ Hãy chia task thành các bước, mỗi bước trên một trang web. Trả v
 Quy tắc: step_index 0 là trang hiện tại, step_index N>0 là trang sau khi click bước N-1. url_pattern phải đủ cụ thể (path, không chỉ domain), KHÔNG dùng "/" vì match mọi trang. Nếu không đoán được URL tiếp theo: để url_pattern là "".`;
 }
 
+// --- First-run consent ---
+(function initConsent() {
+  chrome.storage.local.get('consentGiven', ({ consentGiven }) => {
+    if (consentGiven) return;
+    const overlay = document.getElementById('consentOverlay');
+    if (overlay) overlay.style.display = 'flex';
+  });
+})();
+
+document.getElementById('consentAgreeBtn')?.addEventListener('click', () => {
+  chrome.storage.local.set({ consentGiven: true });
+  const overlay = document.getElementById('consentOverlay');
+  if (overlay) overlay.style.display = 'none';
+});
+
+document.getElementById('consentPrivacyBtn')?.addEventListener('click', () => {
+  chrome.tabs.create({ url: chrome.runtime.getURL('privacy.html') });
+});
+
+document.getElementById('privacyLink')?.addEventListener('click', () => {
+  chrome.tabs.create({ url: chrome.runtime.getURL('privacy.html') });
+});
+
+// --- Delete current provider's API key ---
+document.getElementById('deleteKeyBtn')?.addEventListener('click', () => {
+  chrome.storage.local.remove([`apiKey_${currentProvider}`, 'apiKey'], () => {
+    apiKeyInput.value = '';
+    statusDot.className = 'status-dot';
+    showTempFeedback('deleteKeyBtn', '✓ Đã xóa');
+  });
+});
+
+// --- Delete all stored data ---
+document.getElementById('deleteAllBtn')?.addEventListener('click', () => {
+  const allKeys = [
+    'apiKey_openai', 'apiKey_deepseek', 'apiKey_claude', 'apiKey_qwen',
+    'apiKey', 'lastPrompt', 'provider',
+    'model_openai', 'model_deepseek', 'model_claude', 'model_qwen',
+    'consentGiven'
+  ];
+  chrome.storage.local.remove(allKeys, () => {
+    apiKeyInput.value = '';
+    promptInput.value = '';
+    statusDot.className = 'status-dot';
+    showTempFeedback('deleteAllBtn', '✓ Đã xóa tất cả');
+  });
+});
+
+function showTempFeedback(btnId, text) {
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  const orig = btn.textContent;
+  btn.textContent = text;
+  btn.style.color = '#2ed573';
+  setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, 2000);
+}
+
 const scanBtn = document.getElementById('scanBtn');
 const clearBtn = document.getElementById('clearBtn');
 const resultBox = document.getElementById('resultBox');

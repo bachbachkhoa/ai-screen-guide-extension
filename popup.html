@@ -241,9 +241,112 @@
     .clear-btn:hover { border-color: var(--muted); color: var(--text); }
 
     .divider { height: 1px; background: var(--border); }
+
+    /* Consent overlay */
+    #consentOverlay {
+      position: absolute;
+      inset: 0;
+      background: var(--bg);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 18px;
+      gap: 14px;
+    }
+    #consentOverlay h2 { font-size: 14px; font-weight: 700; color: var(--text); }
+    #consentOverlay p { font-size: 12px; color: #b0b4c0; line-height: 1.6; }
+    #consentOverlay ul { font-size: 12px; color: #b0b4c0; padding-left: 16px; line-height: 1.8; }
+    .consent-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+    .consent-agree-btn {
+      width: 100%; padding: 10px;
+      background: var(--accent); border: none; border-radius: var(--radius);
+      color: white; font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      box-shadow: 0 4px 16px rgba(255,71,87,0.25);
+    }
+    .consent-agree-btn:hover { filter: brightness(1.1); }
+    .consent-privacy-link {
+      text-align: center; font-size: 11px; color: var(--muted);
+      background: none; border: none; cursor: pointer; text-decoration: underline;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .consent-privacy-link:hover { color: var(--accent); }
+
+    /* Footer */
+    .footer {
+      padding: 8px 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .footer-link {
+      font-size: 10px; color: var(--muted); background: none; border: none;
+      cursor: pointer; font-family: 'JetBrains Mono', monospace;
+      text-decoration: underline; padding: 0;
+    }
+    .footer-link:hover { color: var(--accent); }
+    .delete-all-btn {
+      font-size: 10px; color: var(--muted); background: none; border: none;
+      cursor: pointer; font-family: 'JetBrains Mono', monospace; padding: 0;
+    }
+    .delete-all-btn:hover { color: #ff6b7a; }
+
+    /* Delete key button */
+    .delete-key-btn {
+      position: absolute;
+      right: 36px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 11px;
+      padding: 2px 4px;
+      border-radius: 3px;
+      line-height: 1;
+    }
+    .delete-key-btn:hover { color: #ff6b7a; background: rgba(255,71,87,0.08); }
+
+    /* Screenshot/prompt warning */
+    .data-warning {
+      font-size: 10px; color: var(--accent2);
+      padding: 5px 8px;
+      background: rgba(255,165,2,0.07);
+      border: 1px solid rgba(255,165,2,0.25);
+      border-radius: 5px;
+      line-height: 1.5;
+    }
   </style>
 </head>
-<body>
+<body style="position:relative">
+
+<!-- First-run consent overlay — shown by JS if consentGiven not set -->
+<div id="consentOverlay" style="display:none">
+  <div style="display:flex;align-items:center;gap:8px">
+    <div style="width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;box-shadow:0 0 12px rgba(255,71,87,0.4)">👁</div>
+    <div>
+      <div style="font-size:13px;font-weight:700">AI Screen Guide</div>
+      <div style="font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace">Trước khi sử dụng, hãy đọc thông tin sau</div>
+    </div>
+  </div>
+
+  <p>Extension này giúp bạn điều hướng web bằng AI. Để hoạt động, extension cần gửi dữ liệu lên AI provider bạn chọn:</p>
+  <ul>
+    <li><strong>Screenshot</strong> trang hiện tại (OpenAI, Claude, Qwen)</li>
+    <li><strong>Text DOM</strong> của trang (DeepSeek — thông tin cá nhân tự động ẩn)</li>
+    <li><strong>Câu hỏi/Task</strong> bạn nhập</li>
+  </ul>
+  <p>Dữ liệu đi thẳng từ trình duyệt đến AI provider. Extension <strong>không có server riêng</strong> và không lưu dữ liệu của bạn.</p>
+  <p style="color:var(--accent2)">⚠️ Đừng để thông tin nhạy cảm (mật khẩu, số thẻ, CCCD) hiển thị trên màn hình khi Scan.</p>
+
+  <div class="consent-actions">
+    <button class="consent-agree-btn" id="consentAgreeBtn">Tôi hiểu và đồng ý</button>
+    <button class="consent-privacy-link" id="consentPrivacyBtn">Xem Chính sách quyền riêng tư đầy đủ</button>
+  </div>
+</div>
 
 <div class="header">
   <div class="logo">👁</div>
@@ -284,7 +387,8 @@
   <div>
     <div class="section-label">API Key</div>
     <div class="input-wrap">
-      <input type="password" id="apiKey" placeholder="sk-...  (lưu local, không gửi đi đâu)" />
+      <input type="password" id="apiKey" placeholder="sk-...  (lưu local, không gửi đi đâu)" style="padding-right:60px" />
+      <button class="delete-key-btn" id="deleteKeyBtn" title="Xóa API key">✕</button>
       <button class="eye-btn" id="toggleKey">👁</button>
     </div>
   </div>
@@ -301,7 +405,8 @@
 
   <div>
     <div class="section-label">Câu hỏi / Task</div>
-    <textarea id="prompt" placeholder="Tôi muốn tạo một VM mới trên Google Cloud. Tôi nên bấm vào đâu?"></textarea>
+    <textarea id="prompt" placeholder="Tôi muốn tạo một VM mới trên Google Cloud. Tôi nên bấm vào đâu? (không nhập thông tin cá nhân)"></textarea>
+    <div class="data-warning" style="margin-top:5px">⚠️ Nội dung sẽ gửi lên AI provider. Không nhập tên, SĐT, địa chỉ, mật khẩu.</div>
     <div class="quick-prompts" style="margin-top:6px">
       <button class="qp" data-q="Bước tiếp theo tôi cần làm gì trên trang này?">❓ Bước tiếp theo</button>
     </div>
@@ -314,14 +419,19 @@
     </button>
     <button class="clear-btn" id="clearBtn">Xóa highlight</button>
   </div>
-  <div id="screenshotNote" style="font-size:10px;color:var(--muted);text-align:center;display:none">
-    ⚠️ Screenshot sẽ được gửi lên AI provider. Đảm bảo không có thông tin nhạy cảm trên màn hình.
+  <div id="screenshotNote" class="data-warning" style="display:none;text-align:center">
+    📸 Screenshot màn hình sẽ gửi lên AI provider. Đảm bảo không có thông tin nhạy cảm đang hiển thị.
   </div>
 
   </div>
 
   <div class="result-box" id="resultBox"></div>
 
+</div>
+
+<div class="footer">
+  <button class="footer-link" id="privacyLink">Chính sách quyền riêng tư</button>
+  <button class="delete-all-btn" id="deleteAllBtn">Xóa tất cả dữ liệu</button>
 </div>
 
 <script src="popup.js"></script>

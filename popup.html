@@ -293,22 +293,16 @@
     }
     .delete-all-btn:hover { color: #ff6b7a; }
 
-    /* Delete key button */
-    .delete-key-btn {
-      position: absolute;
-      right: 36px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      color: var(--muted);
-      cursor: pointer;
-      font-size: 11px;
-      padding: 2px 4px;
-      border-radius: 3px;
-      line-height: 1;
+    /* Language switch */
+    .lang-switch { display: flex; gap: 4px; }
+    .lang-btn {
+      font-size: 10px; font-family: 'JetBrains Mono', monospace;
+      padding: 2px 7px; border-radius: 4px; cursor: pointer;
+      background: none; border: 1px solid var(--border);
+      color: var(--muted); transition: all 0.2s;
     }
-    .delete-key-btn:hover { color: #ff6b7a; background: rgba(255,71,87,0.08); }
+    .lang-btn.active { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+    .lang-btn:hover:not(.active) { color: var(--text); border-color: var(--text); }
 
     /* Screenshot/prompt warning */
     .data-warning {
@@ -356,22 +350,26 @@
     <div style="width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;box-shadow:0 0 12px rgba(255,71,87,0.4)">👁</div>
     <div>
       <div style="font-size:13px;font-weight:700">AI Screen Guide</div>
-      <div style="font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace">Trước khi sử dụng, hãy đọc thông tin sau</div>
+      <div style="font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace" data-i18n="consentSubtitle">Trước khi sử dụng, hãy đọc thông tin sau</div>
     </div>
   </div>
 
-  <p>Extension này giúp bạn điều hướng web bằng AI. Để hoạt động, extension cần gửi dữ liệu lên AI provider bạn chọn:</p>
+  <p data-i18n="consentP1">Extension này giúp bạn điều hướng web bằng AI. Để hoạt động, extension cần gửi dữ liệu lên AI provider bạn chọn:</p>
   <ul>
-    <li><strong>Screenshot</strong> toàn trang hoặc <strong>vùng màn hình</strong> bạn chọn (OpenAI, Claude, Qwen)</li>
-    <li><strong>Text DOM</strong> của trang (DeepSeek — thông tin cá nhân tự động ẩn)</li>
-    <li><strong>Câu hỏi/Task</strong> bạn nhập</li>
+    <li data-i18n-html="consentBullet1"><strong>Screenshot</strong> toàn trang hoặc <strong>vùng màn hình</strong> bạn chọn (OpenAI, Claude, Qwen)</li>
+    <li data-i18n-html="consentBullet2"><strong>Text DOM</strong> của trang (DeepSeek — thông tin cá nhân tự động ẩn)</li>
+    <li data-i18n-html="consentBullet3"><strong>Câu hỏi/Task</strong> bạn nhập</li>
   </ul>
-  <p>Dữ liệu đi thẳng từ trình duyệt đến AI provider. Extension <strong>không có server riêng</strong> và không lưu dữ liệu của bạn.</p>
-  <p style="color:var(--accent2)">⚠️ Đừng để thông tin nhạy cảm (mật khẩu, số thẻ, CCCD) hiển thị trên màn hình khi Scan.</p>
+  <p data-i18n-html="consentP2">Dữ liệu đi thẳng từ trình duyệt đến AI provider. Extension <strong>không có server riêng</strong> và không lưu dữ liệu của bạn.</p>
+  <p style="color:var(--accent2)" data-i18n="consentWarning">⚠️ Đừng để thông tin nhạy cảm (mật khẩu, số thẻ, CCCD) hiển thị trên màn hình khi Scan.</p>
 
   <div class="consent-actions">
-    <button class="consent-agree-btn" id="consentAgreeBtn">Tôi hiểu và đồng ý</button>
-    <button class="consent-privacy-link" id="consentPrivacyBtn">Xem Chính sách quyền riêng tư đầy đủ</button>
+    <button class="consent-agree-btn" id="consentAgreeBtn" data-i18n="consentAgree">Tôi hiểu và đồng ý</button>
+    <button class="consent-privacy-link" id="consentPrivacyBtn" data-i18n="consentPrivacy">Xem Chính sách quyền riêng tư đầy đủ</button>
+    <div class="lang-switch" style="justify-content:center;margin-top:2px">
+      <button class="lang-btn active" data-lang="vi">VI</button>
+      <button class="lang-btn" data-lang="en">EN</button>
+    </div>
   </div>
 </div>
 
@@ -388,7 +386,13 @@
 
   <div>
   <div>
-    <div class="section-label">AI Provider</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <div class="section-label" style="margin-bottom:0" data-i18n="labelProvider">AI Provider</div>
+      <div class="lang-switch">
+        <button class="lang-btn active" data-lang="vi">VI</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+      </div>
+    </div>
     <div class="provider-tabs">
       <button class="tab active" data-provider="openai">OpenAI</button>
       <button class="tab" data-provider="deepseek">DeepSeek</button>
@@ -398,16 +402,15 @@
   </div>
 
   <div>
-    <div class="section-label">API Key</div>
+    <div class="section-label" data-i18n="labelApiKey">API Key</div>
     <div class="input-wrap">
-      <input type="password" id="apiKey" placeholder="sk-...  (lưu local, không gửi đi đâu)" style="padding-right:60px" />
-      <button class="delete-key-btn" id="deleteKeyBtn" title="Xóa API key">✕</button>
+      <input type="password" id="apiKey" placeholder="sk-...  (lưu local, không gửi đi đâu)" data-i18n-placeholder="placeholderKey" />
       <button class="eye-btn" id="toggleKey">👁</button>
     </div>
   </div>
 
   <div>
-    <div class="section-label">Model</div>
+    <div class="section-label" data-i18n="labelModel">Model</div>
     <select id="modelSelect">
       <option value="gpt-4o">gpt-4o</option>
       <option value="gpt-4o-mini">gpt-4o-mini (rẻ hơn)</option>
@@ -417,28 +420,31 @@
   <div class="divider"></div>
 
   <div>
-    <div class="section-label">Câu hỏi / Task</div>
-    <textarea id="prompt" placeholder="Tôi muốn tạo một VM mới trên Google Cloud. Tôi nên bấm vào đâu? (không nhập thông tin cá nhân)"></textarea>
+    <div class="section-label" data-i18n="labelPrompt">Câu hỏi / Task</div>
+    <textarea id="prompt" placeholder="Tôi muốn tạo một VM mới trên Google Cloud. Tôi nên bấm vào đâu? (không nhập thông tin cá nhân)" data-i18n-placeholder="placeholderPrompt"></textarea>
     <div class="quick-prompts" style="margin-top:6px">
-      <button class="qp" data-q="Bước tiếp theo tôi cần làm gì trên trang này?">❓ Bước tiếp theo</button>
+      <button class="qp" data-q="Bước tiếp theo tôi cần làm gì trên trang này?" data-i18n="quickPromptLabel">❓ Bước tiếp theo</button>
     </div>
   </div>
 
   <!-- Attachments: region images + text snippets -->
   <div id="attachmentSection" style="display:none"></div>
   <div>
-    <button class="add-region-btn" id="addRegionBtn">🖼 Thêm vùng màn hình</button>
+    <button class="add-region-btn" id="addRegionBtn" data-i18n="btnAddRegion">🖼 Thêm vùng màn hình</button>
   </div>
 
   <div class="actions">
     <button class="scan-btn" id="scanBtn" style="flex:3">
       <span id="btnIcon">📸</span>
-      <span id="btnText">Scan & Phân tích</span>
+      <span id="btnText" data-i18n="btnScan">Scan & Phân tích</span>
     </button>
-    <button class="clear-btn" id="clearBtn">Xóa highlight</button>
+    <button class="clear-btn" id="clearBtn" data-i18n="btnClear">Xóa highlight</button>
   </div>
-  <div id="screenshotNote" class="data-warning" style="display:none;text-align:center">
+  <div id="screenshotNote" class="data-warning" style="display:none;text-align:center" data-i18n="screenshotNote">
     📸 Screenshot màn hình sẽ gửi lên AI provider. Đảm bảo không có thông tin nhạy cảm đang hiển thị.
+  </div>
+  <div id="deepseekNote" class="data-warning" style="display:none;text-align:center" data-i18n="deepseekNote">
+    ⚠️ DeepSeek đọc nội dung text trên trang (DOM). Không dùng trên trang có chứa thông tin nhạy cảm (mật khẩu, số thẻ, dữ liệu cá nhân).
   </div>
 
   </div>
@@ -448,8 +454,8 @@
 </div>
 
 <div class="footer">
-  <button class="footer-link" id="privacyLink">Chính sách quyền riêng tư</button>
-  <button class="delete-all-btn" id="deleteAllBtn">Xóa tất cả dữ liệu</button>
+  <button class="footer-link" id="privacyLink" data-i18n="linkPrivacy">Chính sách quyền riêng tư</button>
+  <button class="delete-all-btn" id="deleteAllBtn" data-i18n="btnDeleteAll">Xóa tất cả dữ liệu</button>
 </div>
 
 <script src="popup.js"></script>

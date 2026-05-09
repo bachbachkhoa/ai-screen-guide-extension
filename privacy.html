@@ -29,59 +29,21 @@
     .provider { background: #161920; border: 1px solid #2a2d38; border-radius: 6px; padding: 10px 14px; }
     .provider strong { color: #e8eaf0; }
     .provider span { color: #6b7080; font-size: 12px; font-family: monospace; }
+    .lang-btn {
+      position: fixed; top: 16px; right: 16px;
+      font-size: 11px; color: #6b7080; background: #161920;
+      border: 1px solid #2a2d38; cursor: pointer;
+      font-family: 'JetBrains Mono', monospace; padding: 4px 10px;
+      border-radius: 4px; transition: all 0.2s; z-index: 100;
+    }
+    .lang-btn:hover { color: #ff4757; border-color: #ff4757; }
   </style>
 </head>
 <body>
-<div class="container">
 
-  <h1>Chính sách quyền riêng tư</h1>
-  <div class="meta">AI Screen Guide Extension &nbsp;·&nbsp; Cập nhật lần cuối: 2026-05-09 &nbsp;·&nbsp; v1.1.0</div>
+<button class="lang-btn" id="privacyLangToggle">EN</button>
+<div class="container" id="privacyContent"></div>
 
-  <div class="highlight">
-    <p>Extension này <strong>không có server riêng</strong>. Mọi dữ liệu chỉ đi thẳng từ trình duyệt của bạn đến AI provider bạn chọn, và không được lưu trữ bởi chúng tôi.</p>
-  </div>
-
-  <h2>1. Dữ liệu nào được thu thập</h2>
-  <ul>
-    <li><strong>Screenshot trang web hiện tại</strong> — chụp màn hình vùng hiển thị khi bạn nhấn "Scan" (không chọn vùng). Chỉ áp dụng với provider OpenAI, Claude, Qwen.</li>
-    <li><strong>Vùng màn hình do bạn chọn</strong> — nếu bạn dùng tính năng "Thêm vùng màn hình", chỉ các vùng bạn kéo chọn mới được crop và gửi lên AI (thay thế cho screenshot toàn trang). Tối đa 5 vùng, được ghép dọc thành 1 ảnh trước khi gửi.</li>
-    <li><strong>Nội dung DOM (text)</strong> — trích xuất text từ các nút, link, input trên trang. Chỉ áp dụng với provider DeepSeek. Thông tin cá nhân (email, SĐT, CCCD...) được tự động ẩn trước khi gửi.</li>
-    <li><strong>Câu hỏi/Task bạn nhập</strong> — nội dung trong ô "Câu hỏi / Task" được gửi kèm lên AI provider.</li>
-    <li><strong>API Key</strong> — được lưu trong <code>chrome.storage.local</code> trên máy của bạn. Không bao giờ được gửi đến server nào ngoài AI provider tương ứng.</li>
-  </ul>
-
-  <h2>2. Dữ liệu được gửi đến đâu</h2>
-  <p>Tuỳ provider bạn chọn, dữ liệu được gửi đến một trong các địa chỉ sau:</p>
-  <div class="provider-list">
-    <div class="provider"><strong>OpenAI</strong> <span>api.openai.com</span><br><a href="https://openai.com/policies/privacy-policy" target="_blank">Chính sách quyền riêng tư của OpenAI</a></div>
-    <div class="provider"><strong>DeepSeek</strong> <span>api.deepseek.com</span><br><a href="https://cdn.deepseek.com/policies/en-US/deepseek-privacy-policy.html" target="_blank">Chính sách quyền riêng tư của DeepSeek</a></div>
-    <div class="provider"><strong>Alibaba Qwen</strong> <span>dashscope-intl.aliyuncs.com</span><br><a href="https://chat.qwen.ai/legal-agreement/privacy-policy" target="_blank">Chính sách quyền riêng tư của Qwen</a></div>
-    <div class="provider"><strong>Anthropic Claude</strong> <span>api.anthropic.com</span><br><a href="https://www.anthropic.com/legal/privacy" target="_blank">Chính sách quyền riêng tư của Anthropic</a></div>
-  </div>
-  <p>Extension chỉ kết nối đến đúng địa chỉ của provider bạn đang chọn, không gửi dữ liệu đi nơi nào khác.</p>
-
-  <h2>3. Dữ liệu được lưu ở đâu</h2>
-  <ul>
-    <li>API key được lưu trong <code>chrome.storage.local</code> — chỉ tồn tại trên trình duyệt của bạn.</li>
-    <li>Câu hỏi gần nhất (<code>lastPrompt</code>) được lưu local để tiện nhập lại.</li>
-    <li>Screenshot, vùng ảnh đã chọn và DOM text <strong>không được lưu lại</strong> sau khi gửi đi — chúng chỉ tồn tại trong <code>chrome.storage.session</code> (xóa khi đóng tab hoặc sau khi Scan).</li>
-    <li>Extension <strong>không có database, không có server, không theo dõi lịch sử sử dụng</strong>.</li>
-  </ul>
-
-  <h2>4. Quyền của bạn</h2>
-  <ul>
-    <li><strong>Xóa API key</strong>: Nhấn nút "Xóa key" trong popup hoặc "Xóa tất cả dữ liệu" để xóa toàn bộ.</li>
-    <li><strong>Xóa câu hỏi đã lưu</strong>: Được xóa cùng khi nhấn "Xóa tất cả dữ liệu".</li>
-    <li><strong>Gỡ extension</strong>: Toàn bộ dữ liệu local (API key, cài đặt) sẽ bị xóa hoàn toàn.</li>
-  </ul>
-
-  <h2>5. Dữ liệu nhạy cảm</h2>
-  <p>Nếu trang web bạn đang xem có chứa thông tin nhạy cảm (mật khẩu hiển thị, số thẻ ngân hàng, thông tin cá nhân), hãy đảm bảo thông tin đó không nằm trong vùng màn hình bạn chọn — hoặc không hiển thị trên màn hình nếu dùng chế độ Scan toàn trang.</p>
-  <p>Với DeepSeek (DOM mode), extension tự động ẩn: email, số điện thoại, CCCD, mã số định danh trước khi gửi lên AI.</p>
-
-  <h2>6. Liên hệ</h2>
-  <p>Nếu bạn có câu hỏi về quyền riêng tư, vui lòng liên hệ: <a href="mailto:bachbachkhoa1911@gmail.com">bachbachkhoa1911@gmail.com</a></p>
-
-</div>
+<script src="privacy.js"></script>
 </body>
 </html>

@@ -3,6 +3,23 @@ if (window.__aiGuideInited) {
 } else {
 window.__aiGuideInited = true;
 
+const CONTENT_STRINGS = {
+  vi: {
+    btnAdd: 'Thêm', btnSkip: 'Bỏ qua',
+    panelHeader: 'Vùng đã chọn', btnAddMore: 'Thêm vùng khác',
+    btnDone: 'Xong', countSuffix: '/5 vùng',
+    maxRegions: 'Đã đạt tối đa 5 vùng', errPrefix: 'Lỗi: ',
+  },
+  en: {
+    btnAdd: 'Add', btnSkip: 'Skip',
+    panelHeader: 'Selected regions', btnAddMore: 'Add another region',
+    btnDone: 'Done', countSuffix: '/5 regions',
+    maxRegions: 'Maximum 5 regions reached', errPrefix: 'Error: ',
+  }
+};
+
+let CS = CONTENT_STRINGS.vi;
+
 chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
   if (msg.type === 'HIGHLIGHT_STEP') {
     clearHighlights();
@@ -14,8 +31,10 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
     sendResponse({ ok: true });
   }
   if (msg.type === 'START_REGION_SELECT') {
-    console.log('[content.js] START_REGION_SELECT received');
-    startRegionSelect();
+    chrome.storage.local.get('language', ({ language }) => {
+      CS = CONTENT_STRINGS[language === 'en' ? 'en' : 'vi'];
+      startRegionSelect();
+    });
     sendResponse({ ok: true });
   }
   return true;
@@ -75,13 +94,6 @@ function injectHighlightsForStep(step) {
         box-shadow: 0 2px 12px rgba(255,71,87,0.5) !important;
         letter-spacing: 0.02em !important;
       }
-      .ai-guide-label .step-num {
-        display: inline-block !important;
-        background: rgba(255,255,255,0.3) !important;
-        border-radius: 50% !important;
-        width: 16px !important; height: 16px !important; line-height: 16px !important;
-        text-align: center !important; font-size: 10px !important; margin-right: 5px !important;
-      }
       @keyframes ai-guide-pulse {
         0%, 100% { box-shadow: 0 0 0 3px rgba(255,71,87,0.25), 0 0 20px rgba(255,71,87,0.4); }
         50% { box-shadow: 0 0 0 6px rgba(255,71,87,0.1), 0 0 30px rgba(255,71,87,0.6); }
@@ -108,10 +120,6 @@ function injectHighlightsForStep(step) {
 
     const label = document.createElement('div');
     label.className = 'ai-guide-label';
-    const stepNum = document.createElement('span');
-    stepNum.className = 'step-num';
-    stepNum.textContent = idx + 1;
-    label.appendChild(stepNum);
     label.appendChild(document.createTextNode(target.description));
     const lt = rect.top - 32 > 10 ? rect.top - 32 : rect.top + rect.height + 8;
     setPos(label, lt, Math.max(0, rect.left));
@@ -123,12 +131,17 @@ function injectHighlightsForStep(step) {
 
   if (pairs.length > 0) {
     const styleEl = document.getElementById('ai-guide-style');
+    let rafId = null;
     styleEl._reposition = () => {
-      pairs.forEach(({ el, highlight, label }) => {
-        const r = el.getBoundingClientRect();
-        setPos(highlight, r.top - 4, r.left - 4, r.width + 8, r.height + 8);
-        const lt = r.top - 32 > 10 ? r.top - 32 : r.top + r.height + 8;
-        setPos(label, lt, Math.max(0, r.left));
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        pairs.forEach(({ el, highlight, label }) => {
+          const r = el.getBoundingClientRect();
+          setPos(highlight, r.top - 4, r.left - 4, r.width + 8, r.height + 8);
+          const lt = r.top - 32 > 10 ? r.top - 32 : r.top + r.height + 8;
+          setPos(label, lt, Math.max(0, r.left));
+        });
       });
     };
     window.addEventListener('scroll', styleEl._reposition, { passive: true, capture: true });
@@ -194,7 +207,6 @@ let regionOverlay = null;
 let regionFloatingPanel = null;
 
 function startRegionSelect() {
-  console.log('[content.js] startRegionSelect called, already active:', regionSelectActive);
   if (regionSelectActive) return;
   regionSelectActive = true;
 
@@ -205,6 +217,7 @@ function startRegionSelect() {
 
   let startX = 0, startY = 0, isDragging = false;
   let selRect = null, confirmPanel = null;
+  let moveRafId = null, lastMX = 0, lastMY = 0;
 
   function removeConfirmPanel() { confirmPanel?.remove(); confirmPanel = null; }
 
@@ -216,19 +229,23 @@ function startRegionSelect() {
     isDragging = true;
     startX = e.clientX; startY = e.clientY;
     selRect = document.createElement('div');
-    selRect.style.cssText = 'position:fixed!important;border:2px solid #ff4757!important;box-sizing:border-box!important;pointer-events:none!important;z-index:2147483636!important';
+    selRect.style.cssText = 'position:fixed!important;border:2px solid #ff4757!important;box-sizing:border-box!important;pointer-events:none!important;z-index:2147483636!important;box-shadow:0 0 0 9999px rgba(0,0,0,0.55)!important';
     document.documentElement.appendChild(selRect);
   }
 
   function onMouseMove(e) {
     if (!isDragging || !selRect) return;
-    const x = Math.min(e.clientX, startX);
-    const y = Math.min(e.clientY, startY);
-    const w = Math.abs(e.clientX - startX);
-    const h = Math.abs(e.clientY - startY);
-    selRect.style.left = x + 'px'; selRect.style.top = y + 'px';
-    selRect.style.width = w + 'px'; selRect.style.height = h + 'px';
-    selRect.style.boxShadow = '0 0 0 9999px rgba(0,0,0,0.55)';
+    lastMX = e.clientX; lastMY = e.clientY;
+    if (moveRafId) return;
+    moveRafId = requestAnimationFrame(() => {
+      moveRafId = null;
+      if (!isDragging || !selRect) return;
+      const x = Math.min(lastMX, startX);
+      const y = Math.min(lastMY, startY);
+      selRect.style.left = x + 'px'; selRect.style.top = y + 'px';
+      selRect.style.width = Math.abs(lastMX - startX) + 'px';
+      selRect.style.height = Math.abs(lastMY - startY) + 'px';
+    });
   }
 
   function onMouseUp(e) {
@@ -253,11 +270,11 @@ function startRegionSelect() {
     btnRow.style.cssText = 'display:flex;gap:6px';
 
     const addBtn = document.createElement('button');
-    addBtn.textContent = 'Thêm';
+    addBtn.textContent = CS.btnAdd;
     addBtn.style.cssText = 'flex:1;padding:6px;background:#ff4757;border:none;border-radius:5px;color:white;font-size:12px;font-weight:600;cursor:pointer;font-family:-apple-system,sans-serif';
 
     const skipBtn = document.createElement('button');
-    skipBtn.textContent = 'Bỏ qua';
+    skipBtn.textContent = CS.btnSkip;
     skipBtn.style.cssText = 'flex:1;padding:6px;background:transparent;border:1px solid #2a2d38;border-radius:5px;color:#6b7080;font-size:12px;cursor:pointer;font-family:-apple-system,sans-serif';
 
     addBtn.addEventListener('click', (ev) => {
@@ -269,8 +286,8 @@ function startRegionSelect() {
         rect: { x, y, width: w, height: h },
         devicePixelRatio: window.devicePixelRatio || 1
       }, (resp) => {
-        if (resp?.error === 'max5') { showRegionNotice('Đã đạt tối đa 5 vùng'); return; }
-        if (resp?.error) { showRegionNotice('Lỗi: ' + resp.error); return; }
+        if (resp?.error === 'max5') { showRegionNotice(CS.maxRegions); return; }
+        if (resp?.error) { showRegionNotice(CS.errPrefix + resp.error); return; }
         addThumbnailToPanel(resp.dataUrl, resp.count);
       });
     });
@@ -344,7 +361,7 @@ function createFloatingPanel() {
 
   const header = document.createElement('div');
   header.style.cssText = 'font-size:11px;color:#6b7080;margin-bottom:8px;font-weight:600';
-  header.textContent = 'Vùng đã chọn';
+  header.textContent = CS.panelHeader;
 
   const thumbs = document.createElement('div');
   thumbs.id = 'ai-region-thumbs';
@@ -358,13 +375,13 @@ function createFloatingPanel() {
   btnRow.style.cssText = 'display:flex;gap:6px';
 
   const addMoreBtn = document.createElement('button');
-  addMoreBtn.textContent = 'Thêm vùng khác';
+  addMoreBtn.textContent = CS.btnAddMore;
   addMoreBtn.style.cssText = 'flex:1;padding:6px;background:transparent;border:1px solid #2a2d38;border-radius:5px;color:#e8eaf0;font-size:11px;cursor:pointer;font-family:-apple-system,sans-serif';
   addMoreBtn.addEventListener('click', () => { if (!regionSelectActive) startRegionSelect(); });
 
   const doneBtn = document.createElement('button');
   doneBtn.id = 'ai-region-done';
-  doneBtn.textContent = 'Xong (0/5)';
+  doneBtn.textContent = `${CS.btnDone} (0/5)`;
   doneBtn.style.cssText = 'flex:1;padding:6px;background:#ff4757;border:none;border-radius:5px;color:white;font-size:11px;font-weight:600;cursor:pointer;font-family:-apple-system,sans-serif';
   doneBtn.addEventListener('click', () => {
     endRegionSelect();
@@ -385,8 +402,8 @@ function updateFloatingPanelCount(count) {
   if (!regionFloatingPanel) return;
   const countEl = regionFloatingPanel.querySelector('#ai-region-count');
   const doneBtn = regionFloatingPanel.querySelector('#ai-region-done');
-  if (countEl) countEl.textContent = `${count}/5 vùng`;
-  if (doneBtn) doneBtn.textContent = `Xong (${count}/5)`;
+  if (countEl) countEl.textContent = `${count}${CS.countSuffix}`;
+  if (doneBtn) doneBtn.textContent = `${CS.btnDone} (${count}/5)`;
 }
 
 } // end __aiGuideInited guard

@@ -7,12 +7,10 @@ chrome.runtime.onMessage.addListener((msg, _, sendResponse) => {
   if (msg.type === 'HIGHLIGHT_STEP') {
     clearHighlights();
     const highlighted = injectHighlightsForStep(msg.step);
-    showStepBadge(msg.stepIndex, msg.totalSteps);
     sendResponse({ ok: true, highlighted });
   }
   if (msg.type === 'CLEAR_HIGHLIGHTS') {
     clearHighlights();
-    removeStepBadge();
     sendResponse({ ok: true });
   }
   if (msg.type === 'START_REGION_SELECT') {
@@ -189,34 +187,6 @@ function clearHighlights() {
   s?.remove();
 }
 
-function showStepBadge(stepIndex, totalSteps) {
-  removeStepBadge();
-  const badge = document.createElement('div');
-  badge.id = 'ai-guide-step-badge';
-  badge.textContent = `AI Guide — Bước ${stepIndex + 1} / ${totalSteps}`;
-  Object.assign(badge.style, {
-    position: 'fixed',
-    bottom: '16px',
-    right: '16px',
-    zIndex: '2147483647',
-    background: '#161920',
-    color: '#e8eaf0',
-    border: '1px solid #ff4757',
-    borderRadius: '20px',
-    padding: '6px 14px',
-    fontSize: '12px',
-    fontFamily: "'Space Grotesk', -apple-system, sans-serif",
-    fontWeight: '600',
-    boxShadow: '0 2px 16px rgba(255,71,87,0.3)',
-    pointerEvents: 'none',
-    letterSpacing: '0.02em'
-  });
-  document.documentElement.appendChild(badge);
-}
-
-function removeStepBadge() {
-  document.getElementById('ai-guide-step-badge')?.remove();
-}
 
 // --- Region selector ---
 let regionSelectActive = false;

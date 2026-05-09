@@ -386,21 +386,7 @@
 
 <div class="body">
 
-  <div id="guidedFlowPanel" style="display:none">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-      <div class="section-label" id="stepProgress" style="margin-bottom:0"></div>
-      <button class="clear-btn" id="cancelFlowBtn" style="flex:0;padding:4px 10px;font-size:10px">Hủy flow</button>
-    </div>
-    <div id="stepDesc" style="font-size:12px;color:var(--text);line-height:1.5;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px"></div>
-    <div id="rescanWarning" style="display:none;margin-top:8px;padding:6px 8px;background:rgba(255,165,2,0.08);border:1px solid var(--accent2);border-radius:6px;align-items:center;gap:8px">
-      <span style="flex:1;font-size:11px;color:var(--accent2)">⚠️ Không tìm được nút. Re-scan sẽ tốn 1 API call.</span>
-      <button class="clear-btn" id="rescanBtn" style="flex:0;padding:3px 10px;font-size:10px;border-color:var(--accent2);color:var(--accent2);white-space:nowrap">Re-scan</button>
-    </div>
-  </div>
-
-  <div class="divider" id="guidedDivider" style="display:none"></div>
-
-  <div id="scanSection">
+  <div>
   <div>
     <div class="section-label">AI Provider</div>
     <div class="provider-tabs">
@@ -433,7 +419,6 @@
   <div>
     <div class="section-label">Câu hỏi / Task</div>
     <textarea id="prompt" placeholder="Tôi muốn tạo một VM mới trên Google Cloud. Tôi nên bấm vào đâu? (không nhập thông tin cá nhân)"></textarea>
-    <div class="data-warning" style="margin-top:5px">⚠️ Nội dung sẽ gửi lên AI provider. Không nhập tên, SĐT, địa chỉ, mật khẩu.</div>
     <div class="quick-prompts" style="margin-top:6px">
       <button class="qp" data-q="Bước tiếp theo tôi cần làm gì trên trang này?">❓ Bước tiếp theo</button>
     </div>

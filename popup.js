@@ -129,34 +129,27 @@ function buildSystemPrompt(userPrompt) {
 
 User hỏi: "${userPrompt}"
 
-Hãy chia task thành các bước, mỗi bước trên một trang web. Trả về JSON theo format SAU ĐÂY (không thêm text ngoài JSON):
+Trả về JSON theo format SAU ĐÂY (không thêm text ngoài JSON):
 
 {
-  "explanation": "Tóm tắt kế hoạch tổng thể bằng tiếng Việt",
+  "explanation": "Tóm tắt kế hoạch tổng thể bằng tiếng Việt (1-2 câu)",
   "steps": [
+    "Bước 1: mô tả hành động cần làm (tiếng Việt)",
+    "Bước 2: mô tả trang/hành động tiếp theo",
+    "..."
+  ],
+  "targets": [
     {
-      "step_index": 0,
-      "description": "Mô tả bước này bằng tiếng Việt",
-      "url_pattern": "chuỗi con của URL trang này (đủ cụ thể, dùng path — không chỉ domain)",
-      "targets": [
-        {
-          "description": "Tên nút/hành động ngắn gọn (VD: 'Tạo instance', 'Ô tìm kiếm'). Chỉ 1-4 từ. KHÔNG giải thích, KHÔNG nói 'thay thế', KHÔNG chứa selector/class/id",
-          "selector": "CSS selector CỤ THỂ nhất: ưu tiên [aria-label='...'], [data-*='...'], #id. TRÁNH class chung như .mdc-button, .btn",
-          "text_content": "Text hiển thị trên nút/element đó (chính xác như trên màn hình)",
-          "position_hint": "Mô tả vị trí: top-left, center, menu trái, header phải...",
-          "priority": 1
-        }
-      ]
+      "description": "Tên nút/hành động ngắn gọn (VD: 'Tạo instance', 'Ô tìm kiếm'). Chỉ 1-4 từ. KHÔNG giải thích, KHÔNG nói 'thay thế'",
+      "text_content": "Text hiển thị trên nút/element đó (chính xác như trên màn hình)",
+      "position_hint": "Mô tả vị trí: top-left, center, menu trái, header phải..."
     }
   ]
 }
 
-Quy tắc quan trọng:
-- step_index 0: url_pattern là chuỗi con của URL TRANG HIỆN TẠI, targets là element cần click trên trang này
-- step_index N (N>0): url_pattern là chuỗi con của URL trang SAU KHI click bước N-1
-- url_pattern phải đủ cụ thể để phân biệt trang này với trang khác cùng domain (dùng path, query param). KHÔNG dùng "/" hay "//" vì sẽ match mọi trang
-- Nếu không đoán được URL tiếp theo: để url_pattern là ""
-- Nếu không xác định được selector chính xác: để selector là "" và dùng text_content + position_hint`;
+Quy tắc:
+- steps: liệt kê toàn bộ các bước từ đầu đến cuối task (chỉ text để user đọc, không cần URL)
+- targets: chỉ các element trên trang HIỆN TẠI cần click/tương tác. Để [] nếu không xác định được.`;
 }
 
 function buildSystemPromptText(userPrompt, domText) {
@@ -166,29 +159,28 @@ ${domText.substring(0, 6000)}
 
 User hỏi: "${userPrompt}"
 
-Hãy chia task thành các bước, mỗi bước trên một trang web. Trả về JSON theo format sau (không thêm text ngoài JSON):
+Trả về JSON theo format sau (không thêm text ngoài JSON):
 
 {
-  "explanation": "Tóm tắt kế hoạch tổng thể bằng tiếng Việt",
+  "explanation": "Tóm tắt kế hoạch tổng thể bằng tiếng Việt (1-2 câu)",
   "steps": [
+    "Bước 1: mô tả hành động cần làm (tiếng Việt)",
+    "Bước 2: mô tả trang/hành động tiếp theo",
+    "..."
+  ],
+  "targets": [
     {
-      "step_index": 0,
-      "description": "Mô tả bước này bằng tiếng Việt",
-      "url_pattern": "chuỗi con của URL trang này (đủ cụ thể, dùng path)",
-      "targets": [
-        {
-          "description": "Tên nút/hành động ngắn gọn (VD: 'Tạo instance', 'Ô tìm kiếm'). Chỉ 1-4 từ. KHÔNG giải thích, KHÔNG nói 'thay thế', KHÔNG chứa selector/class/id",
-          "selector": "CSS selector chính xác dựa vào DOM",
-          "text_content": "Text hiển thị trên nút/element đó (chính xác)",
-          "position_hint": "Mô tả vị trí",
-          "priority": 1
-        }
-      ]
+      "description": "Tên nút/hành động ngắn gọn (VD: 'Tạo instance', 'Ô tìm kiếm'). Chỉ 1-4 từ. KHÔNG giải thích, KHÔNG nói 'thay thế'",
+      "selector": "CSS selector chính xác dựa vào DOM: ưu tiên [aria-label='...'], [data-*='...'], #id. TRÁNH class chung như .btn",
+      "text_content": "Text hiển thị trên nút/element đó (chính xác)",
+      "position_hint": "Mô tả vị trí"
     }
   ]
 }
 
-Quy tắc: step_index 0 là trang hiện tại, step_index N>0 là trang sau khi click bước N-1. url_pattern phải đủ cụ thể (path, không chỉ domain), KHÔNG dùng "/" vì match mọi trang. Nếu không đoán được URL tiếp theo: để url_pattern là "".`;
+Quy tắc:
+- steps: liệt kê toàn bộ các bước từ đầu đến cuối task (chỉ text để user đọc, không cần URL)
+- targets: chỉ các element trên trang HIỆN TẠI cần click/tương tác. Để [] nếu không xác định được.`;
 }
 
 let activeTabId = null;
@@ -227,13 +219,8 @@ document.getElementById('deleteKeyBtn')?.addEventListener('click', () => {
 
 // --- Delete all stored data ---
 document.getElementById('deleteAllBtn')?.addEventListener('click', () => {
-  const allKeys = [
-    'apiKey_openai', 'apiKey_deepseek', 'apiKey_claude', 'apiKey_qwen',
-    'apiKey', 'lastPrompt', 'provider',
-    'model_openai', 'model_deepseek', 'model_claude', 'model_qwen',
-    'consentGiven'
-  ];
-  chrome.storage.local.remove(allKeys, () => {
+  chrome.storage.local.clear(() => {
+    chrome.storage.local.set({ consentGiven: true });
     apiKeyInput.value = '';
     promptInput.value = '';
     statusDot.className = 'status-dot';
@@ -374,11 +361,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, async ([tab]) => {
   if (!tab) return;
   activeTabId = tab.id;
   const cropKey = 'cropAttachments_' + tab.id;
-  const guidePlanKey = 'guide_plan_' + tab.id;
-  const stored = await chrome.storage.session.get([guidePlanKey, cropKey]);
-  if (stored[guidePlanKey]?.status === 'active') {
-    showGuidedFlowUI(stored[guidePlanKey]);
-  }
+  const stored = await chrome.storage.session.get(cropKey);
   renderAttachments(stored[cropKey] || []);
 });
 
@@ -499,35 +482,27 @@ scanBtn.addEventListener('click', async () => {
     if (!rawText) throw new Error('AI không trả về kết quả');
 
     const parsed = parseAIResponse(rawText);
-    const steps = normalizeSteps(parsed);
-
-    const plan = {
-      tabId: tab.id,
-      explanation: parsed.explanation || '',
-      userPrompt: promptInput.value.trim(),
-      steps,
-      currentStep: 0,
-      status: 'active'
-    };
-    await chrome.storage.session.set({ ['guide_plan_' + tab.id]: plan });
+    const targets = Array.isArray(parsed.targets) ? parsed.targets : [];
 
     try {
       await chrome.tabs.sendMessage(tab.id, {
         type: 'HIGHLIGHT_STEP',
-        step: steps[0],
-        stepIndex: 0,
-        totalSteps: steps.length
+        step: { targets }
       });
     } catch {
       // content script not ready (fresh page load) — scripting fallback
       await chrome.scripting.executeScript({
         target: { tabId: tab.id },
         func: injectHighlights,
-        args: [{ targets: steps[0]?.targets || [] }]
+        args: [{ targets }]
       });
     }
 
-    showGuidedFlowUI(plan);
+    let display = parsed.explanation ? `💡 ${parsed.explanation}` : '✅ Highlight xong';
+    if (Array.isArray(parsed.steps) && parsed.steps.length > 0) {
+      display += '\n\n' + parsed.steps.join('\n');
+    }
+    showResult(display);
 
     // Clear attachments after successful scan
     if (cropItems.length > 0) {
@@ -546,7 +521,23 @@ scanBtn.addEventListener('click', async () => {
 
 clearBtn.addEventListener('click', async () => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  await cancelGuidedFlow(tab.id);
+  try {
+    await chrome.tabs.sendMessage(tab.id, { type: 'CLEAR_HIGHLIGHTS' });
+  } catch {
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      func: () => {
+        document.getElementById('ai-guide-overlay')?.remove();
+        const s = document.getElementById('ai-guide-style');
+        if (s?._reposition) {
+          window.removeEventListener('scroll', s._reposition, true);
+          window.removeEventListener('resize', s._reposition);
+        }
+        s?.remove();
+      }
+    });
+  }
+  showResult('');
 });
 
 function setLoading(loading) {
@@ -567,159 +558,6 @@ function showResult(text, isError = false) {
   resultBox.className = 'result-box show' + (isError ? ' error' : '');
 }
 
-const guidedFlowPanel = document.getElementById('guidedFlowPanel');
-const stepProgressEl = document.getElementById('stepProgress');
-const stepDescEl = document.getElementById('stepDesc');
-const cancelFlowBtn = document.getElementById('cancelFlowBtn');
-const scanSection = document.getElementById('scanSection');
-
-function showGuidedFlowUI(plan) {
-  if (!plan) return;
-  const step = plan.steps[plan.currentStep];
-  stepProgressEl.textContent = `Bước ${plan.currentStep + 1} / ${plan.steps.length}`;
-  stepDescEl.textContent = step?.description || plan.explanation || '';
-  guidedFlowPanel.style.display = 'block';
-  const divider = document.getElementById('guidedDivider');
-  if (divider) divider.style.display = 'block';
-  if (scanSection) scanSection.style.opacity = '0.4';
-
-  const rescanWarning = document.getElementById('rescanWarning');
-  if (rescanWarning) rescanWarning.style.display = plan.rescanNeeded ? 'flex' : 'none';
-
-  let display = `💡 ${plan.explanation}`;
-  if (plan.steps.length > 1) {
-    display += `\n\n📋 Kế hoạch:\n` + plan.steps.map((s, i) =>
-      `${i === plan.currentStep ? '▶' : ' '} Bước ${i + 1}: ${s.description}`
-    ).join('\n');
-  }
-  showResult(display);
-}
-
-function hideGuidedFlowUI() {
-  if (guidedFlowPanel) guidedFlowPanel.style.display = 'none';
-  const divider = document.getElementById('guidedDivider');
-  if (divider) divider.style.display = 'none';
-  if (scanSection) scanSection.style.opacity = '1';
-}
-
-async function cancelGuidedFlow(tabId) {
-  const key = 'guide_plan_' + tabId;
-  const stored = await chrome.storage.session.get(key);
-  const plan = stored[key];
-  if (plan) {
-    plan.status = 'cancelled';
-    await chrome.storage.session.set({ [key]: plan });
-  }
-  try {
-    await chrome.tabs.sendMessage(tabId, { type: 'CLEAR_HIGHLIGHTS' });
-  } catch {
-    await chrome.scripting.executeScript({
-      target: { tabId },
-      func: () => {
-        document.querySelectorAll('.ai-guide-highlight, .ai-guide-label, #ai-guide-step-badge').forEach(el => el.remove());
-        const s = document.getElementById('ai-guide-style');
-        if (s?._reposition) {
-          window.removeEventListener('scroll', s._reposition, true);
-          window.removeEventListener('resize', s._reposition);
-        }
-        s?.remove();
-      }
-    });
-  }
-  hideGuidedFlowUI();
-  showResult('');
-}
-
-if (cancelFlowBtn) {
-  cancelFlowBtn.addEventListener('click', async () => {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    await cancelGuidedFlow(tab.id);
-  });
-}
-
-const rescanBtn = document.getElementById('rescanBtn');
-if (rescanBtn) {
-  rescanBtn.addEventListener('click', rescanCurrentStep);
-}
-
-async function rescanCurrentStep() {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  const key = 'guide_plan_' + tab.id;
-  const stored = await chrome.storage.session.get(key);
-  const plan = stored[key];
-  if (!plan) return;
-
-  const stepIndex = plan.currentStep;
-  const step = plan.steps[stepIndex];
-  const provider = PROVIDERS[currentProvider];
-  const apiKey = apiKeyInput.value.trim();
-  if (!apiKey) { showResult('❌ Cần nhập API key để re-scan', true); return; }
-
-  setLoading(true);
-  try {
-    const model = modelSelect.value;
-    const focusedPrompt = `Tôi đang thực hiện: "${plan.userPrompt || step.description}". Tôi đang ở bước ${stepIndex + 1}: "${step.description}". Trên trang hiện tại, element nào tôi cần click? Chỉ trả về JSON: {"targets": [{"description": "Tên ngắn gọn cho người dùng (tiếng Việt)", "selector": "CSS selector chính xác", "text_content": "text trên element", "priority": 1}]}`;
-
-    let body;
-    if (providerUsesDOM(currentProvider, model)) {
-      const [{ result: domText }] = await chrome.scripting.executeScript({ target: { tabId: tab.id }, func: extractDOMText });
-      body = provider.buildBody(model, domText, focusedPrompt);
-    } else {
-      const screenshot = await chrome.tabs.captureVisibleTab(null, { format: 'png' });
-      body = provider.buildBody(model, screenshot, focusedPrompt);
-    }
-
-    const response = await fetch(provider.url, { method: 'POST', headers: provider.buildHeaders(apiKey), body });
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error(err.error?.message || `HTTP ${response.status}`);
-    }
-    const data = await response.json();
-    const rawText = provider.parseResponse(data);
-    const parsed = parseAIResponse(rawText);
-    const newTargets = parsed.targets?.length > 0 ? parsed.targets : (parsed.steps?.[0]?.targets || []);
-
-    if (newTargets.length === 0) {
-      showResult('⚠️ Re-scan không tìm được element. Thử mô tả rõ hơn hoặc đổi provider.', true);
-      return;
-    }
-
-    plan.steps[stepIndex].targets = newTargets;
-    plan.rescanNeeded = false;
-    await chrome.storage.session.set({ [key]: plan });
-    try { chrome.action.setBadgeText({ text: '', tabId: tab.id }); } catch {}
-
-    await chrome.tabs.sendMessage(tab.id, {
-      type: 'HIGHLIGHT_STEP',
-      step: plan.steps[stepIndex],
-      stepIndex,
-      totalSteps: plan.steps.length
-    });
-    showGuidedFlowUI(plan);
-  } catch (err) {
-    showResult('❌ Lỗi re-scan: ' + err.message, true);
-  } finally {
-    setLoading(false);
-  }
-}
-
-function normalizeSteps(parsed) {
-  if (Array.isArray(parsed.steps) && parsed.steps.length > 0 && typeof parsed.steps[0] === 'object') {
-    return parsed.steps.map((s, i) => ({
-      step_index: i,
-      description: s.description || `Bước ${i + 1}`,
-      url_pattern: s.url_pattern || '',
-      targets: Array.isArray(s.targets) ? s.targets : []
-    }));
-  }
-  // legacy flat format — wrap into single step
-  return [{
-    step_index: 0,
-    description: parsed.explanation || 'Bước 1',
-    url_pattern: '',
-    targets: Array.isArray(parsed.targets) ? parsed.targets : []
-  }];
-}
 
 function parseAIResponse(text) {
   const safe = text.slice(0, 32768);
@@ -738,8 +576,7 @@ function parseAIResponse(text) {
     const looksLikeJson = jsonStr.trim().startsWith('{');
     return {
       explanation: looksLikeJson ? '⚠️ AI trả về response bị cắt ngắn. Thử lại hoặc đặt câu hỏi ngắn hơn.' : text,
-      targets: [],
-      steps: []
+      targets: []
     };
   }
 }

@@ -28,23 +28,20 @@
 | **Qwen** | Screenshot | qwen-vl-max | |
 | **DeepSeek** | DOM text | deepseek-chat | Reads DOM instead of screenshot |
 
-## Multi-step flow
+## Multi-step tasks
 
-When the AI detects a multi-page task, it returns a step plan. The extension:
+When the task spans multiple pages, the AI returns a step-by-step text plan you can read in the result box, and highlights the elements to click **on the current page**. Navigate to the next page and click **Scan & Analyze** again to get highlights for that page.
 
-- Highlights the relevant element on the current page
-- Automatically detects page navigation and highlights the next step
-- Shows a step badge ("AI Guide — Step 2 / 4") on the page
-- Re-scan button appears if no element was found on the current step
+## Region selection
+
+Click **Add screen region** to drag-select specific areas of the page. Up to 5 regions can be selected — they are stitched into one image and sent to the AI instead of a full-page screenshot. Useful for focusing the AI on a specific part of a complex UI.
 
 ## Troubleshooting
 
 - **Can't capture screenshot**: reload the tab before scanning
 - **AI can't find the element**: try a more descriptive prompt, or switch to a different provider
-- **Step not advancing**: try rephrasing with more context, e.g. include the site name or feature name
 
 ## Extending
 
 - `popup.js`: add a new provider to the `PROVIDERS` object
 - `content.js`: `injectHighlightsForStep` — customize highlight color and animation
-- `background.js`: navigation detection and step advancement logic

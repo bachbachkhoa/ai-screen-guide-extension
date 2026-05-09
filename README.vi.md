@@ -28,23 +28,20 @@
 | **Qwen** | Screenshot | qwen-vl-max | |
 | **DeepSeek** | DOM text | deepseek-chat | Đọc DOM thay vì screenshot |
 
-## Flow nhiều bước
+## Task nhiều bước
 
-Khi AI phát hiện task cần nhiều trang, nó trả về kế hoạch từng bước. Extension sẽ:
+Khi task cần thực hiện trên nhiều trang, AI trả về kế hoạch từng bước dạng text để bạn đọc trong ô kết quả, đồng thời highlight các element cần click **trên trang hiện tại**. Sang trang tiếp theo, bấm **Scan & Phân tích** lại để nhận highlight cho trang đó.
 
-- Highlight element cần click trên trang hiện tại
-- Tự động phát hiện điều hướng trang và highlight bước tiếp theo
-- Hiển thị badge bước ("AI Guide — Bước 2 / 4") trên trang
-- Hiện nút Re-scan nếu không tìm được element ở bước hiện tại
+## Chọn vùng màn hình
+
+Bấm **Thêm vùng màn hình** để kéo chọn các vùng cụ thể trên trang. Tối đa 5 vùng — được ghép thành 1 ảnh gửi lên AI thay cho screenshot toàn trang. Hữu ích khi cần tập trung AI vào một phần cụ thể của UI phức tạp.
 
 ## Xử lý sự cố
 
 - **Không chụp được screenshot**: reload tab trước khi scan
 - **AI không tìm được element**: thử mô tả rõ hơn, hoặc đổi sang provider khác
-- **Bước không tự chuyển**: thử hỏi rõ hơn, VD thêm tên trang web hoặc tên tính năng vào câu hỏi
 
 ## Mở rộng
 
 - `popup.js`: thêm provider mới vào object `PROVIDERS`
 - `content.js`: `injectHighlightsForStep` — tuỳ chỉnh màu highlight và animation
-- `background.js`: logic phát hiện điều hướng và chuyển bước

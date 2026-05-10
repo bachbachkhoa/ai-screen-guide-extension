@@ -1,0 +1,10 @@
+{
+  "appName": {
+    "message": "AI Screen Guide",
+    "description": "Tên extension"
+  },
+  "appDescription": {
+    "message": "Quét màn hình hoặc chọn vùng — AI đánh dấu chính xác nút cần bấm",
+    "description": "Mô tả extension hiển thị trên Chrome Web Store và trình duyệt"
+  }
+}

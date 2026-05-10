@@ -1,0 +1,10 @@
+{
+  "appName": {
+    "message": "AI Screen Guide",
+    "description": "Extension name"
+  },
+  "appDescription": {
+    "message": "Scan your screen or select a region — AI highlights the exact button to click",
+    "description": "Extension description shown in the Chrome Web Store and browser"
+  }
+}

@@ -1,7 +1,7 @@
 const PRIVACY_CONTENT = {
   vi: `
     <h1>Chính sách quyền riêng tư</h1>
-    <div class="meta">AI Screen Guide Extension &nbsp;·&nbsp; Cập nhật lần cuối: 2026-05-09 &nbsp;·&nbsp; v1.1.0</div>
+    <div class="meta">AI Screen Guide Extension &nbsp;·&nbsp; Cập nhật lần cuối: 2026-05-09 &nbsp;·&nbsp; v1.0.0</div>
 
     <div class="highlight">
       <p>Extension này <strong>không có server riêng</strong>. Mọi dữ liệu chỉ đi thẳng từ trình duyệt của bạn đến AI provider bạn chọn, và không được lưu trữ bởi chúng tôi.</p>
@@ -12,8 +12,8 @@ const PRIVACY_CONTENT = {
       <li><strong>Screenshot trang web hiện tại</strong> — chụp màn hình vùng hiển thị khi bạn nhấn "Scan" (không chọn vùng). Chỉ áp dụng với provider OpenAI, Claude, Qwen.</li>
       <li><strong>Vùng màn hình do bạn chọn</strong> — nếu bạn dùng tính năng "Thêm vùng màn hình", chỉ các vùng bạn kéo chọn mới được crop và gửi lên AI (thay thế cho screenshot toàn trang). Tối đa 5 vùng, được ghép dọc thành 1 ảnh trước khi gửi.</li>
       <li><strong>Nội dung DOM (text)</strong> — trích xuất text từ các nút, link, input trên trang. Chỉ áp dụng với provider DeepSeek.</li>
-      <li><strong>Câu hỏi/Task bạn nhập</strong> — nội dung trong ô "Câu hỏi / Task" được gửi kèm lên AI provider.</li>
-      <li><strong>API Key</strong> — được lưu trong <code>chrome.storage.local</code> trên máy của bạn. Không bao giờ được gửi đến server nào ngoài AI provider tương ứng.</li>
+      <li><strong>Câu hỏi bạn nhập</strong> — nội dung trong ô "Câu hỏi" được gửi kèm lên AI provider.</li>
+      <li><strong>API Key</strong> — được lưu trong bộ nhớ bảo mật của trình duyệt trên máy của bạn. Không bao giờ được gửi đến server nào ngoài AI provider tương ứng.</li>
     </ul>
 
     <h2>2. Dữ liệu được gửi đến đâu</h2>
@@ -28,9 +28,9 @@ const PRIVACY_CONTENT = {
 
     <h2>3. Dữ liệu được lưu ở đâu</h2>
     <ul>
-      <li>API key được lưu trong <code>chrome.storage.local</code> — chỉ tồn tại trên trình duyệt của bạn.</li>
-      <li>Câu hỏi gần nhất (<code>lastPrompt</code>) được lưu local để tiện nhập lại.</li>
-      <li>Screenshot, vùng ảnh đã chọn và DOM text <strong>không được lưu lại</strong> sau khi gửi đi — chúng chỉ tồn tại trong <code>chrome.storage.session</code> (xóa khi đóng tab hoặc sau khi Scan).</li>
+      <li>API key được lưu trong bộ nhớ bảo mật của trình duyệt trên máy của bạn — không đồng bộ lên cloud, chỉ tồn tại trên thiết bị này.</li>
+      <li>Câu hỏi gần nhất được lưu lại trong bộ nhớ bảo mật của trình duyệt trên máy của bạn để tiện nhập lại.</li>
+      <li>Screenshot, vùng ảnh đã chọn và DOM text <strong>không được lưu lại</strong> sau khi gửi đi — chúng chỉ tồn tại tạm thời trong bộ nhớ của trình duyệt và bị xóa ngay khi đóng tab hoặc sau khi Scan.</li>
       <li>Extension <strong>không có database, không có server, không theo dõi lịch sử sử dụng</strong>.</li>
     </ul>
 
@@ -49,7 +49,7 @@ const PRIVACY_CONTENT = {
   `,
   en: `
     <h1>Privacy Policy</h1>
-    <div class="meta">AI Screen Guide Extension &nbsp;·&nbsp; Last updated: 2026-05-09 &nbsp;·&nbsp; v1.1.0</div>
+    <div class="meta">AI Screen Guide Extension &nbsp;·&nbsp; Last updated: 2026-05-09 &nbsp;·&nbsp; v1.0.0</div>
 
     <div class="highlight">
       <p>This extension has <strong>no server</strong>. All data goes directly from your browser to the AI provider you choose, and is not stored by us.</p>
@@ -60,8 +60,8 @@ const PRIVACY_CONTENT = {
       <li><strong>Current page screenshot</strong> — captures the visible area when you click "Scan" (without region selection). Applies to OpenAI, Claude, and Qwen providers only.</li>
       <li><strong>Screen regions you select</strong> — if you use the "Add screen region" feature, only the regions you drag-select are cropped and sent to the AI (replacing a full-page screenshot). Up to 5 regions, stitched vertically into one image before sending.</li>
       <li><strong>DOM text content</strong> — extracts text from buttons, links, and inputs on the page. Applies to DeepSeek only.</li>
-      <li><strong>Your question/task</strong> — the content of the "Question / Task" field is sent to the AI provider.</li>
-      <li><strong>API Key</strong> — stored in <code>chrome.storage.local</code> on your machine. Never sent to any server other than the corresponding AI provider.</li>
+      <li><strong>Your question</strong> — the content of the "Question" field is sent to the AI provider.</li>
+      <li><strong>API Key</strong> — stored in your browser's secure local storage on your device. Never sent to any server other than the corresponding AI provider.</li>
     </ul>
 
     <h2>2. Where data is sent</h2>
@@ -76,9 +76,9 @@ const PRIVACY_CONTENT = {
 
     <h2>3. Where data is stored</h2>
     <ul>
-      <li>API key is stored in <code>chrome.storage.local</code> — exists only in your browser.</li>
-      <li>Your most recent question (<code>lastPrompt</code>) is saved locally for convenience.</li>
-      <li>Screenshots, selected regions, and DOM text are <strong>not stored</strong> after being sent — they only exist in <code>chrome.storage.session</code> (cleared when the tab is closed or after Scan).</li>
+      <li>API key is stored in your browser's secure local storage on your device — not synced to the cloud, exists only on this machine.</li>
+      <li>Your most recent question is saved in your browser's secure local storage on your device for convenience.</li>
+      <li>Screenshots, selected regions, and DOM text are <strong>not stored</strong> after being sent — they only exist temporarily in your browser's memory and are cleared as soon as the tab is closed or after Scan.</li>
       <li>The extension has <strong>no database, no server, and does not track usage history</strong>.</li>
     </ul>
 

@@ -26,7 +26,7 @@
 | **OpenAI** | Screenshot | gpt-4o | |
 | **Claude** | Screenshot | claude-sonnet-4-6 | |
 | **Qwen** | Screenshot | qwen-vl-max | |
-| **DeepSeek** | DOM text | deepseek-chat | Đọc DOM thay vì screenshot |
+| **DeepSeek** | Screenshot | deepseek-v4-flash | |
 
 ## Task nhiều bước
 

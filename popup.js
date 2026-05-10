@@ -1,8 +1,8 @@
 const PROVIDERS = {
   openai: {
     url: 'https://api.openai.com/v1/chat/completions',
-    models: ['gpt-4o', 'gpt-4o-mini'],
-    defaultModel: 'gpt-4o',
+    models: ['gpt-4.1-mini', 'gpt-4.1-nano', 'gpt-4.1'],
+    defaultModel: 'gpt-4.1-mini',
     buildHeaders: (key) => ({
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${key}`
@@ -29,19 +29,21 @@ const PROVIDERS = {
 
   deepseek: {
     url: 'https://api.deepseek.com/chat/completions',
-    models: ['deepseek-chat', 'deepseek-reasoner'],
-    defaultModel: 'deepseek-chat',
-    usesDOM: () => true,
+    models: ['deepseek-v4-flash', 'deepseek-v4-pro'],
+    defaultModel: 'deepseek-v4-flash',
     buildHeaders: (key) => ({
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${key}`
     }),
-    buildBody: (model, input, prompt) => JSON.stringify({
+    buildBody: (model, screenshot, prompt) => JSON.stringify({
       model, max_tokens: 4096,
-      messages: [
-        { role: 'system', content: STRINGS[currentLang].deepseekSystem },
-        { role: 'user', content: buildSystemPromptText(prompt, input) }
-      ]
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'image_url', image_url: { url: screenshot } },
+          { type: 'text', text: buildSystemPrompt(prompt) }
+        ]
+      }]
     }),
     parseResponse: (data) => data.choices?.[0]?.message?.content
   },
@@ -49,7 +51,7 @@ const PROVIDERS = {
   qwen: {
     url: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions',
     models: ['qwen-vl-max', 'qwen-vl-plus', 'qwen2.5-vl-72b-instruct', 'qwen2.5-vl-7b-instruct'],
-    defaultModel: 'qwen-vl-max',
+    defaultModel: 'qwen2.5-vl-7b-instruct',
     buildHeaders: (key) => ({
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${key}`
@@ -66,8 +68,8 @@ const PROVIDERS = {
 
   claude: {
     url: 'https://api.anthropic.com/v1/messages',
-    models: ['claude-opus-4-7', 'claude-sonnet-4-6', 'claude-haiku-4-5-20251001'],
-    defaultModel: 'claude-sonnet-4-6',
+    models: ['claude-haiku-4-5-20251001', 'claude-opus-4-7', 'claude-sonnet-4-6'],
+    defaultModel: 'claude-haiku-4-5-20251001',
     buildHeaders: (key) => ({
       'Content-Type': 'application/json',
       'x-api-key': key,
@@ -101,12 +103,10 @@ const PROVIDERS = {
 
 const STRINGS = {
   vi: {
-    deepseekSystem: 'Bạn là AI assistant giúp user điều hướng trên web. Trả lời theo đúng JSON format được yêu cầu.',
     consentSubtitle: 'Trước khi sử dụng, hãy đọc thông tin sau',
     consentP1: 'Extension này giúp bạn điều hướng web bằng AI. Để hoạt động, extension cần gửi dữ liệu lên AI provider bạn chọn:',
-    consentBullet1: '<strong>Screenshot</strong> toàn trang hoặc <strong>vùng màn hình</strong> bạn chọn (OpenAI, Claude, Qwen)',
-    consentBullet2: '<strong>Text DOM</strong> của trang (DeepSeek)',
-    consentBullet3: '<strong>Câu hỏi/Task</strong> bạn nhập',
+    consentBullet1: '<strong>Screenshot</strong> toàn trang hoặc <strong>vùng màn hình</strong> bạn chọn',
+    consentBullet3: '<strong>Câu hỏi</strong> bạn nhập',
     consentP2: 'Dữ liệu đi thẳng từ trình duyệt đến AI provider. Extension <strong>không có server riêng</strong> và không lưu dữ liệu của bạn.',
     consentWarning: '⚠️ Đừng để thông tin nhạy cảm (mật khẩu, số thẻ, CCCD) hiển thị trên màn hình khi Scan.',
     consentAgree: 'Tôi hiểu và đồng ý',
@@ -121,7 +121,6 @@ const STRINGS = {
     quickPromptLabel: '❓ Bước tiếp theo',
     quickPromptText: 'Bước tiếp theo tôi cần làm gì trên trang này?',
     screenshotNote: '📸 Screenshot màn hình sẽ gửi lên AI provider. Đảm bảo không có thông tin nhạy cảm đang hiển thị.',
-    deepseekNote: '⚠️ DeepSeek đọc nội dung text trên trang (DOM). Không dùng trên trang có chứa thông tin nhạy cảm (mật khẩu, số thẻ, dữ liệu cá nhân).',
     feedbackAllDeleted: '✓ Đã xóa tất cả',
     errNoKey: '⚠️ Chưa nhập API Key!', errNoPrompt: '⚠️ Chưa nhập câu hỏi/task!',
     errMaxRegions: '⚠️ Đã đạt tối đa 5 vùng ảnh',
@@ -131,12 +130,10 @@ const STRINGS = {
     errPrefix: '❌ Lỗi: ', modelCheaper: 'gpt-4o-mini (rẻ hơn)',
   },
   en: {
-    deepseekSystem: 'You are an AI assistant helping users navigate the web. Reply in the exact JSON format requested.',
     consentSubtitle: 'Before you start, please read the following',
     consentP1: 'This extension helps you navigate the web using AI. To function, it needs to send data to the AI provider you choose:',
-    consentBullet1: '<strong>Full-page screenshot</strong> or the <strong>screen regions</strong> you select (OpenAI, Claude, Qwen)',
-    consentBullet2: '<strong>DOM text</strong> of the page (DeepSeek)',
-    consentBullet3: 'The <strong>question/task</strong> you type',
+    consentBullet1: '<strong>Full-page screenshot</strong> or the <strong>screen regions</strong> you select',
+    consentBullet3: 'The <strong>question</strong> you type',
     consentP2: 'Data goes directly from your browser to the AI provider. The extension has <strong>no server</strong> and does not store your data.',
     consentWarning: '⚠️ Do not let sensitive information (passwords, card numbers, ID) appear on screen when scanning.',
     consentAgree: 'I understand and agree',
@@ -151,7 +148,6 @@ const STRINGS = {
     quickPromptLabel: '❓ Next step',
     quickPromptText: 'What do I need to do next on this page?',
     screenshotNote: '📸 A screenshot will be sent to the AI provider. Make sure no sensitive information is visible.',
-    deepseekNote: '⚠️ DeepSeek reads the text content of the page (DOM). Do not use on pages containing sensitive information (passwords, card numbers, personal data).',
     feedbackAllDeleted: '✓ All data deleted',
     errNoKey: '⚠️ API Key is required!', errNoPrompt: '⚠️ Please enter a question/task!',
     errMaxRegions: '⚠️ Maximum 5 regions reached',
@@ -163,32 +159,6 @@ const STRINGS = {
 };
 
 let currentLang = 'vi';
-
-function redactPII(text) {
-  return text
-    // email
-    .replace(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g, '[EMAIL]')
-    // 16-digit credit card (must come before shorter digit patterns)
-    .replace(/\b\d{4}[\s\-]?\d{4}[\s\-]?\d{4}[\s\-]?\d{4}\b/g, '[CARD]')
-    // VN mobile
-    .replace(/(\+84|0)(3[2-9]|5[25689]|7[06-9]|8[0-9]|9[0-9])\d{7}/g, '[PHONE-VN]')
-    // VN CCCD (12-digit) — exclude if preceded by # . / to avoid order IDs and paths
-    .replace(/(?<![\#\.\/\-])\b\d{12}\b(?![\d\#\.\/])/g, '[CCCD]')
-    // VN CMND (9-digit) — same exclusion; intentionally broad to err on side of privacy
-    .replace(/(?<![\#\.\/\-])\b\d{9}\b(?![\d\#\.\/])/g, '[CMND]')
-    // JP mobile (070/080/090)
-    .replace(/0[789]0[\s\-]?\d{4}[\s\-]?\d{4}/g, '[PHONE-JP]')
-    // JP landline
-    .replace(/0\d{1,4}[\s\-]\d{1,4}[\s\-]\d{4}/g, '[PHONE-JP]')
-    // JP IP phone (050)
-    .replace(/050[\s\-]?\d{4}[\s\-]?\d{4}/g, '[PHONE-JP]')
-    // JP postal code
-    .replace(/〒?\d{3}[\s\-]\d{4}/g, '[POSTAL-JP]')
-    // JP My Number — 12-digit after 番号/ナンバー keyword; $1 preserves the keyword
-    .replace(/(番号|ナンバー|マイナンバー)[^\d]*\d{4}[\s\-]?\d{4}[\s\-]?\d{4}/g, '$1 [MY-NUMBER-JP]')
-    // JP address — bounded middle segment to prevent O(n²) backtracking on long non-matching strings
-    .replace(/\S{0,20}[都道府県]\S{0,30}[市区町村]\S{0,20}/g, '[ADDRESS-JP]');
-}
 
 function buildSystemPrompt(userPrompt) {
   if (currentLang === 'en') {
@@ -243,67 +213,6 @@ Trả về JSON theo format SAU ĐÂY (không thêm text ngoài JSON):
 Quy tắc:
 - steps: liệt kê toàn bộ các bước từ đầu đến cuối task (chỉ text để user đọc, không cần URL)
 - targets: CHỈ các element ĐANG HIỂN THỊ TRÊN SCREENSHOT NÀY mà user cần click NGAY BÂY (chỉ bước 1). KHÔNG đưa vào button của trang tiếp theo hay các bước sau. Để [] nếu không có gì cần click trên trang này.`;
-}
-
-function buildSystemPromptText(userPrompt, domText) {
-  if (currentLang === 'en') {
-    return `You are an AI assistant helping navigate UI. Here is the DOM text content of the current page:
-
-${domText.substring(0, 6000)}
-
-User question: "${userPrompt}"
-
-Return JSON in EXACTLY this format (no text outside JSON):
-
-{
-  "explanation": "Brief overall plan in English (1-2 sentences)",
-  "steps": [
-    "Step 1: describe the action needed",
-    "Step 2: describe the next page/action",
-    "..."
-  ],
-  "targets": [
-    {
-      "description": "Short button/action name (e.g. 'Create instance', 'Search box'). 1-4 words max. NO explanation.",
-      "selector": "Exact CSS selector from the DOM: prefer [aria-label='...'], [data-*='...'], #id. AVOID generic classes like .btn",
-      "text_content": "Exact text shown on the button/element",
-      "position_hint": "Describe position: top-left, center, left menu, right header..."
-    }
-  ]
-}
-
-Rules:
-- steps: list all steps from start to end of the task (text only for user to read, no URLs needed)
-- targets: ONLY elements on the CURRENT page that the user must click RIGHT NOW (step 1 only). Do NOT include buttons from future pages or steps. Use [] if nothing to click on this page.`;
-  }
-  return `Bạn là AI assistant giúp điều hướng UI. Đây là nội dung DOM (text) của trang hiện tại:
-
-${domText.substring(0, 6000)}
-
-User hỏi: "${userPrompt}"
-
-Trả về JSON theo format sau (không thêm text ngoài JSON):
-
-{
-  "explanation": "Tóm tắt kế hoạch tổng thể bằng tiếng Việt (1-2 câu)",
-  "steps": [
-    "Bước 1: mô tả hành động cần làm (tiếng Việt)",
-    "Bước 2: mô tả trang/hành động tiếp theo",
-    "..."
-  ],
-  "targets": [
-    {
-      "description": "Tên nút/hành động ngắn gọn (VD: 'Tạo instance', 'Ô tìm kiếm'). Chỉ 1-4 từ. KHÔNG giải thích, KHÔNG nói 'thay thế'",
-      "selector": "CSS selector chính xác dựa vào DOM: ưu tiên [aria-label='...'], [data-*='...'], #id. TRÁNH class chung như .btn",
-      "text_content": "Text hiển thị trên nút/element đó (chính xác)",
-      "position_hint": "Mô tả vị trí"
-    }
-  ]
-}
-
-Quy tắc:
-- steps: liệt kê toàn bộ các bước từ đầu đến cuối task (chỉ text để user đọc, không cần URL)
-- targets: CHỈ các element ĐANG HIỂN THỊ TRÊN TRANG NÀY mà user cần click NGAY BÂY (chỉ bước 1). KHÔNG đưa vào button của trang tiếp theo hay các bước sau. Để [] nếu không có gì cần click trên trang này.`;
 }
 
 let activeTabId = null;
@@ -514,16 +423,8 @@ chrome.tabs.query({ active: true, currentWindow: true }, async ([tab]) => {
 });
 
 const screenshotNote = document.getElementById('screenshotNote');
-const deepseekNote = document.getElementById('deepseekNote');
-function providerUsesDOM(providerKey, model) {
-  const p = PROVIDERS[providerKey];
-  return typeof p?.usesDOM === 'function' ? p.usesDOM(model) : false;
-}
-
-function updateScreenshotNote(providerKey) {
-  const usesDOM = providerUsesDOM(providerKey, modelSelect.value);
-  screenshotNote.style.display = usesDOM ? 'none' : 'block';
-  deepseekNote.style.display = usesDOM ? 'block' : 'none';
+function updateScreenshotNote() {
+  screenshotNote.style.display = 'block';
 }
 
 document.querySelectorAll('.tab').forEach(tab => {
@@ -606,15 +507,8 @@ scanBtn.addEventListener('click', async () => {
     const attachStored = await chrome.storage.session.get(cropKey);
     const cropItems = attachStored[cropKey] || [];
 
-    // Determine input: crop images take precedence for vision providers
-    if (cropItems.length > 0 && !providerUsesDOM(currentProvider, model)) {
+    if (cropItems.length > 0) {
       aiInput = cropItems.length === 1 ? cropItems[0] : await stitchImages(cropItems);
-    } else if (providerUsesDOM(currentProvider, model)) {
-      const results = await chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        func: extractDOMText
-      });
-      aiInput = redactPII(results[0]?.result || '');
     } else {
       const screenshot = await chrome.tabs.captureVisibleTab(tab.windowId, { format: 'jpeg', quality: 85 });
       aiInput = screenshot;
@@ -734,24 +628,6 @@ function parseAIResponse(text) {
       targets: []
     };
   }
-}
-
-// injected into page context (not extension context)
-function extractDOMText() {
-  const selector = 'button, a, input, select, [role="button"], nav, h1, h2, h3, [aria-label]';
-  const texts = [];
-  for (const el of document.querySelectorAll(selector)) {
-    const text = (el.textContent || el.getAttribute('aria-label') || el.getAttribute('title') || '').trim();
-    if (!text || text.length >= 200) continue;
-    const tag = el.tagName.toLowerCase();
-    const id = el.id ? `#${el.id}` : '';
-    const cls = el.className && typeof el.className === 'string'
-      ? '.' + el.className.split(' ').filter(Boolean).slice(0, 2).join('.')
-      : '';
-    texts.push(`[${tag}${id}${cls}] "${text}"`);
-    if (texts.length >= 200) break;
-  }
-  return texts.join('\n');
 }
 
 function injectHighlights(parsed) {

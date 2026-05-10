@@ -8,9 +8,8 @@ const PRIVACY_CONTENT = {
 
     <h2>1. Dữ liệu nào được thu thập</h2>
     <ul>
-      <li><strong>Screenshot trang web hiện tại</strong> — chụp màn hình vùng hiển thị khi bạn nhấn "Scan" (không chọn vùng). Chỉ áp dụng với provider OpenAI, Claude, Qwen.</li>
+      <li><strong>Screenshot trang web hiện tại</strong> — chụp màn hình vùng hiển thị khi bạn nhấn "Scan" (không chọn vùng).</li>
       <li><strong>Vùng màn hình do bạn chọn</strong> — nếu bạn dùng tính năng "Thêm vùng màn hình", chỉ các vùng bạn kéo chọn mới được crop và gửi lên AI (thay thế cho screenshot toàn trang). Tối đa 5 vùng, được ghép dọc thành 1 ảnh trước khi gửi.</li>
-      <li><strong>Nội dung DOM (text)</strong> — trích xuất text từ các nút, link, input trên trang. Chỉ áp dụng với provider DeepSeek.</li>
       <li><strong>Câu hỏi bạn nhập</strong> — nội dung trong ô "Câu hỏi" được gửi kèm lên AI provider.</li>
       <li><strong>API Key</strong> — được lưu trong bộ nhớ bảo mật của trình duyệt trên máy của bạn. Không bao giờ được gửi đến server nào ngoài AI provider tương ứng.</li>
     </ul>
@@ -29,7 +28,7 @@ const PRIVACY_CONTENT = {
     <ul>
       <li>API key được lưu trong bộ nhớ bảo mật của trình duyệt trên máy của bạn — không đồng bộ lên cloud, chỉ tồn tại trên thiết bị này.</li>
       <li>Câu hỏi gần nhất được lưu lại trong bộ nhớ bảo mật của trình duyệt trên máy của bạn để tiện nhập lại.</li>
-      <li>Screenshot, vùng ảnh đã chọn và DOM text <strong>không được lưu lại</strong> sau khi gửi đi — chúng chỉ tồn tại tạm thời trong bộ nhớ của trình duyệt và bị xóa ngay khi đóng tab hoặc sau khi Scan.</li>
+      <li>Screenshot và vùng ảnh đã chọn <strong>không được lưu lại</strong> sau khi gửi đi — chúng chỉ tồn tại tạm thời trong bộ nhớ của trình duyệt và bị xóa ngay khi đóng tab hoặc sau khi Scan.</li>
       <li>Extension <strong>không có database, không có server, không theo dõi lịch sử sử dụng</strong>.</li>
     </ul>
 
@@ -55,9 +54,8 @@ const PRIVACY_CONTENT = {
 
     <h2>1. What data is collected</h2>
     <ul>
-      <li><strong>Current page screenshot</strong> — captures the visible area when you click "Scan" (without region selection). Applies to OpenAI, Claude, and Qwen providers only.</li>
+      <li><strong>Current page screenshot</strong> — captures the visible area when you click "Scan" (without region selection).</li>
       <li><strong>Screen regions you select</strong> — if you use the "Add screen region" feature, only the regions you drag-select are cropped and sent to the AI (replacing a full-page screenshot). Up to 5 regions, stitched vertically into one image before sending.</li>
-      <li><strong>DOM text content</strong> — extracts text from buttons, links, and inputs on the page. Applies to DeepSeek only.</li>
       <li><strong>Your question</strong> — the content of the "Question" field is sent to the AI provider.</li>
       <li><strong>API Key</strong> — stored in your browser's secure local storage on your device. Never sent to any server other than the corresponding AI provider.</li>
     </ul>
@@ -76,7 +74,7 @@ const PRIVACY_CONTENT = {
     <ul>
       <li>API key is stored in your browser's secure local storage on your device — not synced to the cloud, exists only on this machine.</li>
       <li>Your most recent question is saved in your browser's secure local storage on your device for convenience.</li>
-      <li>Screenshots, selected regions, and DOM text are <strong>not stored</strong> after being sent — they only exist temporarily in your browser's memory and are cleared as soon as the tab is closed or after Scan.</li>
+      <li>Screenshots and selected regions are <strong>not stored</strong> after being sent — they only exist temporarily in your browser's memory and are cleared as soon as the tab is closed or after Scan.</li>
       <li>The extension has <strong>no database, no server, and does not track usage history</strong>.</li>
     </ul>
 

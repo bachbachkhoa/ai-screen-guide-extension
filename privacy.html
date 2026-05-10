@@ -15,7 +15,6 @@
       padding: 40px 20px;
     }
     .container { max-width: 680px; margin: 0 auto; }
-    h1 { font-size: 22px; font-weight: 700; color: #ff4757; margin-bottom: 6px; }
     .meta { font-size: 12px; color: #6b7080; margin-bottom: 32px; }
     h2 { font-size: 15px; font-weight: 600; color: #e8eaf0; margin: 28px 0 10px; border-left: 3px solid #ff4757; padding-left: 10px; }
     p { color: #b0b4c0; margin-bottom: 10px; }
@@ -29,19 +28,30 @@
     .provider { background: #161920; border: 1px solid #2a2d38; border-radius: 6px; padding: 10px 14px; }
     .provider strong { color: #e8eaf0; }
     .provider span { color: #6b7080; font-size: 12px; font-family: monospace; }
+    .page-header {
+      max-width: 680px; margin: 0 auto 6px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    h1 { font-size: 22px; font-weight: 700; color: #ff4757; margin: 0; }
+    .lang-switcher { display: flex; gap: 6px; }
     .lang-btn {
-      position: fixed; top: 16px; right: 16px;
       font-size: 11px; color: #6b7080; background: #161920;
       border: 1px solid #2a2d38; cursor: pointer;
       font-family: 'JetBrains Mono', monospace; padding: 4px 10px;
-      border-radius: 4px; transition: all 0.2s; z-index: 100;
+      border-radius: 4px; transition: all 0.2s;
     }
-    .lang-btn:hover { color: #ff4757; border-color: #ff4757; }
+    .lang-btn:hover, .lang-btn.active { color: #ff4757; border-color: #ff4757; }
   </style>
 </head>
 <body>
 
-<button class="lang-btn" id="privacyLangToggle">EN</button>
+<div class="page-header">
+  <h1 id="privacyTitle"></h1>
+  <div class="lang-switcher">
+    <button class="lang-btn" data-lang="vi">VI</button>
+    <button class="lang-btn" data-lang="en">EN</button>
+  </div>
+</div>
 <div class="container" id="privacyContent"></div>
 
 <script src="privacy.js"></script>

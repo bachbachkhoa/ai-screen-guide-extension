@@ -1,6 +1,5 @@
 const PRIVACY_CONTENT = {
   vi: `
-    <h1>Chính sách quyền riêng tư</h1>
     <div class="meta">AI Screen Guide Extension &nbsp;·&nbsp; Cập nhật lần cuối: 2026-05-09 &nbsp;·&nbsp; v1.0.0</div>
 
     <div class="highlight">
@@ -48,7 +47,6 @@ const PRIVACY_CONTENT = {
     <p>Nếu bạn có câu hỏi về quyền riêng tư, vui lòng liên hệ: <a href="mailto:bachbachkhoa1911@gmail.com">bachbachkhoa1911@gmail.com</a></p>
   `,
   en: `
-    <h1>Privacy Policy</h1>
     <div class="meta">AI Screen Guide Extension &nbsp;·&nbsp; Last updated: 2026-05-09 &nbsp;·&nbsp; v1.0.0</div>
 
     <div class="highlight">
@@ -99,22 +97,29 @@ const PRIVACY_CONTENT = {
 
 let privacyLang = 'vi';
 
+const TITLES = { vi: 'Chính sách quyền riêng tư', en: 'Privacy Policy' };
+
 function applyPrivacyLanguage(lang) {
   privacyLang = lang;
+  document.getElementById('privacyTitle').textContent = TITLES[lang];
   document.getElementById('privacyContent').innerHTML = PRIVACY_CONTENT[lang];
-  document.getElementById('privacyLangToggle').textContent = lang === 'vi' ? 'EN' : 'VI';
+  document.querySelectorAll('.lang-btn[data-lang]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.lang === lang);
+  });
   document.documentElement.lang = lang;
   document.title = lang === 'vi'
     ? 'Chính sách quyền riêng tư — AI Screen Guide'
     : 'Privacy Policy — AI Screen Guide';
 }
 
-document.getElementById('privacyLangToggle').addEventListener('click', () => {
-  const newLang = privacyLang === 'vi' ? 'en' : 'vi';
-  if (typeof chrome !== 'undefined' && chrome.storage) {
-    chrome.storage.local.set({ language: newLang });
-  }
-  applyPrivacyLanguage(newLang);
+document.querySelectorAll('.lang-btn[data-lang]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const newLang = btn.dataset.lang;
+    if (typeof chrome !== 'undefined' && chrome.storage) {
+      chrome.storage.local.set({ language: newLang });
+    }
+    applyPrivacyLanguage(newLang);
+  });
 });
 
 // Render Vietnamese immediately

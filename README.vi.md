@@ -13,7 +13,7 @@
 ## Cách dùng
 
 1. Click icon extension trên toolbar
-2. Chọn **AI Provider**: OpenAI / DeepSeek / Claude / Qwen
+2. Chọn **AI Provider**: OpenAI / Claude / Qwen
 3. Dán **API key** vào ô (lưu local, không gửi đi đâu ngoài provider đó)
 4. Nhập câu hỏi, VD: *"Tôi muốn tạo VM mới trên GCP. Tôi nên bấm vào đâu?"*
 5. Click **Scan & Phân tích**
@@ -26,7 +26,6 @@
 | **OpenAI** | Screenshot | gpt-4o | |
 | **Claude** | Screenshot | claude-sonnet-4-6 | |
 | **Qwen** | Screenshot | qwen-vl-max | |
-| **DeepSeek** | Screenshot | deepseek-v4-flash | |
 
 ## Task nhiều bước
 

@@ -1,6 +1,4 @@
-chrome.runtime.onInstalled.addListener(() => {
-  console.log('[AI Screen Guide] Extension installed');
-});
+chrome.runtime.onInstalled.addListener(() => {});
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === 'CAPTURE_REGION') {

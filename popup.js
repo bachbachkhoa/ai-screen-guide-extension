@@ -27,27 +27,6 @@ const PROVIDERS = {
     parseResponse: (data) => data.choices?.[0]?.message?.content
   },
 
-  deepseek: {
-    url: 'https://api.deepseek.com/chat/completions',
-    models: ['deepseek-v4-flash', 'deepseek-v4-pro'],
-    defaultModel: 'deepseek-v4-flash',
-    buildHeaders: (key) => ({
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${key}`
-    }),
-    buildBody: (model, screenshot, prompt) => JSON.stringify({
-      model, max_tokens: 4096,
-      messages: [{
-        role: 'user',
-        content: [
-          { type: 'image_url', image_url: { url: screenshot } },
-          { type: 'text', text: buildSystemPrompt(prompt) }
-        ]
-      }]
-    }),
-    parseResponse: (data) => data.choices?.[0]?.message?.content
-  },
-
   qwen: {
     url: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions',
     models: ['qwen-vl-max', 'qwen-vl-plus', 'qwen2.5-vl-72b-instruct', 'qwen2.5-vl-7b-instruct'],
@@ -127,7 +106,7 @@ const STRINGS = {
     errAINoResult: 'AI không trả về kết quả',
     errTruncated: '⚠️ AI trả về response bị cắt ngắn. Thử lại hoặc đặt câu hỏi ngắn hơn.',
     scanning: 'Đang phân tích...', highlightDone: '✅ Highlight xong',
-    errPrefix: '❌ Lỗi: ', modelCheaper: 'gpt-4o-mini (rẻ hơn)',
+    errPrefix: '❌ Lỗi: ',
   },
   en: {
     consentSubtitle: 'Before you start, please read the following',
@@ -154,7 +133,7 @@ const STRINGS = {
     errAINoResult: 'AI returned no result',
     errTruncated: '⚠️ AI response was truncated. Try again or use a shorter prompt.',
     scanning: 'Analyzing...', highlightDone: '✅ Highlights applied',
-    errPrefix: '❌ Error: ', modelCheaper: 'gpt-4o-mini (cheaper)',
+    errPrefix: '❌ Error: ',
   }
 };
 
@@ -286,8 +265,6 @@ function applyLanguage(lang) {
   });
   const qBtn = document.querySelector('.qp');
   if (qBtn) qBtn.dataset.q = S.quickPromptText;
-  const miniOpt = modelSelect?.querySelector('option[value="gpt-4o-mini"]');
-  if (miniOpt) miniOpt.textContent = S.modelCheaper;
   document.querySelectorAll('[data-lang]').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.lang === lang);
   });
@@ -354,22 +331,17 @@ async function stitchImages(dataUrls) {
 
 // Add region button
 document.getElementById('addRegionBtn')?.addEventListener('click', async () => {
-  console.log('[addRegionBtn] click fired');
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  console.log('[addRegionBtn] tab:', tab?.id, tab?.url);
   if (!tab) return;
   const key = 'cropAttachments_' + tab.id;
   const stored = await chrome.storage.session.get(key);
   const count = (stored[key] || []).length;
-  console.log('[addRegionBtn] current crop count:', count);
   if (count >= 5) {
     showResult(STRINGS[currentLang].errMaxRegions, true);
     return;
   }
-  console.log('[addRegionBtn] sending START_REGION_SELECT to tab', tab.id);
   chrome.tabs.sendMessage(tab.id, { type: 'START_REGION_SELECT' }, (resp) => {
     if (chrome.runtime.lastError) {
-      console.log('[addRegionBtn] content script not ready, injecting...', chrome.runtime.lastError.message);
       chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['content.js'] }, () => {
         chrome.scripting.insertCSS({ target: { tabId: tab.id }, files: ['overlay.css'] }, () => {
           chrome.tabs.sendMessage(tab.id, { type: 'START_REGION_SELECT' }, () => window.close());
@@ -377,7 +349,6 @@ document.getElementById('addRegionBtn')?.addEventListener('click', async () => {
       });
       return;
     }
-    console.log('[addRegionBtn] sendMessage ok, resp:', resp);
     window.close();
   });
 });
@@ -410,7 +381,7 @@ chrome.storage.local.get(null, (data) => {
   }
   if (data[`model_${currentProvider}`]) modelSelect.value = data[`model_${currentProvider}`];
   if (data.lastPrompt) promptInput.value = data.lastPrompt;
-  updateScreenshotNote(currentProvider);
+  updateScreenshotNote();
   applyLanguage(data.language || 'vi');
 });
 
@@ -437,7 +408,7 @@ document.querySelectorAll('.tab').forEach(tab => {
       apiKeyInput.value = data[`apiKey_${currentProvider}`] || '';
       statusDot.className = 'status-dot ' + (apiKeyInput.value ? 'active' : '');
       if (data[`model_${currentProvider}`]) modelSelect.value = data[`model_${currentProvider}`];
-      updateScreenshotNote(currentProvider);
+      updateScreenshotNote();
     });
     chrome.storage.local.set({ provider: currentProvider });
   });
@@ -450,7 +421,7 @@ function updateModelOptions(provider) {
   p.models.forEach(m => {
     const opt = document.createElement('option');
     opt.value = m;
-    opt.textContent = m === 'gpt-4o-mini' ? STRINGS[currentLang].modelCheaper : m;
+    opt.textContent = m;
     modelSelect.appendChild(opt);
   });
   modelSelect.value = p.defaultModel;
@@ -474,7 +445,7 @@ document.querySelectorAll('.qp').forEach(btn => {
 
 modelSelect.addEventListener('change', () => {
   chrome.storage.local.set({ [`model_${currentProvider}`]: modelSelect.value });
-  updateScreenshotNote(currentProvider);
+  updateScreenshotNote();
 });
 
 scanBtn.addEventListener('click', async () => {

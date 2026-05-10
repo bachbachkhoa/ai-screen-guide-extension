@@ -12,7 +12,6 @@
   ],
   "host_permissions": [
     "https://api.openai.com/*",
-    "https://api.deepseek.com/*",
     "https://dashscope-intl.aliyuncs.com/*",
     "https://api.anthropic.com/*"
   ],

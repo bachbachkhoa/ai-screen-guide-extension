@@ -13,7 +13,7 @@
 ## Usage
 
 1. Click the extension icon in the toolbar
-2. Select an **AI Provider**: OpenAI / DeepSeek / Claude / Qwen
+2. Select an **AI Provider**: OpenAI / Claude / Qwen
 3. Paste your **API key** (stored locally, never sent anywhere except the chosen provider)
 4. Type your question, e.g. *"I want to create a new VM on GCP. What should I click?"*
 5. Click **Scan & Analyze**
@@ -26,7 +26,6 @@
 | **OpenAI** | Screenshot | gpt-4o | |
 | **Claude** | Screenshot | claude-sonnet-4-6 | |
 | **Qwen** | Screenshot | qwen-vl-max | |
-| **DeepSeek** | Screenshot | deepseek-v4-flash | |
 
 ## Multi-step tasks
 

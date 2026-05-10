@@ -18,7 +18,6 @@ const PRIVACY_CONTENT = {
     <p>Tuỳ provider bạn chọn, dữ liệu được gửi đến một trong các địa chỉ sau:</p>
     <div class="provider-list">
       <div class="provider"><strong>OpenAI</strong> <span>api.openai.com</span><br><a href="https://openai.com/policies/privacy-policy" target="_blank">Chính sách quyền riêng tư của OpenAI</a></div>
-      <div class="provider"><strong>DeepSeek</strong> <span>api.deepseek.com</span><br><a href="https://cdn.deepseek.com/policies/en-US/deepseek-privacy-policy.html" target="_blank">Chính sách quyền riêng tư của DeepSeek</a></div>
       <div class="provider"><strong>Alibaba Qwen</strong> <span>dashscope-intl.aliyuncs.com</span><br><a href="https://chat.qwen.ai/legal-agreement/privacy-policy" target="_blank">Chính sách quyền riêng tư của Qwen</a></div>
       <div class="provider"><strong>Anthropic Claude</strong> <span>api.anthropic.com</span><br><a href="https://www.anthropic.com/legal/privacy" target="_blank">Chính sách quyền riêng tư của Anthropic</a></div>
     </div>
@@ -64,7 +63,6 @@ const PRIVACY_CONTENT = {
     <p>Depending on the provider you choose, data is sent to one of these addresses:</p>
     <div class="provider-list">
       <div class="provider"><strong>OpenAI</strong> <span>api.openai.com</span><br><a href="https://openai.com/policies/privacy-policy" target="_blank">OpenAI Privacy Policy</a></div>
-      <div class="provider"><strong>DeepSeek</strong> <span>api.deepseek.com</span><br><a href="https://cdn.deepseek.com/policies/en-US/deepseek-privacy-policy.html" target="_blank">DeepSeek Privacy Policy</a></div>
       <div class="provider"><strong>Alibaba Qwen</strong> <span>dashscope-intl.aliyuncs.com</span><br><a href="https://chat.qwen.ai/legal-agreement/privacy-policy" target="_blank">Qwen Privacy Policy</a></div>
       <div class="provider"><strong>Anthropic Claude</strong> <span>api.anthropic.com</span><br><a href="https://www.anthropic.com/legal/privacy" target="_blank">Anthropic Privacy Policy</a></div>
     </div>

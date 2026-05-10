@@ -79,7 +79,7 @@
 
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-    .body { padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; }
+    .body { padding: 14px 16px; display: flex; flex-direction: column; gap: 16px; }
 
     .section-label {
       font-size: 10px;
@@ -250,6 +250,7 @@
       z-index: 100;
       display: flex;
       flex-direction: column;
+      justify-content: center;
       padding: 20px 18px;
       gap: 14px;
     }
@@ -383,7 +384,7 @@
 
 <div class="body">
 
-  <div>
+  <div style="display:flex;flex-direction:column;gap:16px">
   <div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
       <div class="section-label" style="margin-bottom:0" data-i18n="labelProvider">AI Provider</div>
@@ -417,16 +418,14 @@
   <div>
     <div class="section-label" data-i18n="labelPrompt">Câu hỏi</div>
     <textarea id="prompt" placeholder="Tôi muốn tạo một VM mới trên Google Cloud. Tôi nên bấm vào đâu? (không nhập thông tin cá nhân)" data-i18n-placeholder="placeholderPrompt"></textarea>
-    <div class="quick-prompts" style="margin-top:6px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;gap:6px">
+      <button class="add-region-btn" id="addRegionBtn" data-i18n="btnAddRegion">🖼 Thêm vùng màn hình</button>
       <button class="qp" data-q="Bước tiếp theo tôi cần làm gì trên trang này?" data-i18n="quickPromptLabel">❓ Bước tiếp theo</button>
     </div>
   </div>
 
   <!-- Attachments: region images + text snippets -->
   <div id="attachmentSection" style="display:none"></div>
-  <div>
-    <button class="add-region-btn" id="addRegionBtn" data-i18n="btnAddRegion">🖼 Thêm vùng màn hình</button>
-  </div>
 
   <div class="actions">
     <button class="scan-btn" id="scanBtn" style="flex:3">
@@ -435,7 +434,7 @@
     </button>
     <button class="clear-btn" id="clearBtn" data-i18n="btnClear">Xóa highlight</button>
   </div>
-  <div id="screenshotNote" class="data-warning" style="display:none;text-align:center" data-i18n="screenshotNote">
+  <div id="screenshotNote" class="data-warning" style="display:none;text-align:center;margin-top:8px" data-i18n="screenshotNote">
     📸 Screenshot màn hình sẽ gửi lên AI provider. Đảm bảo không có thông tin nhạy cảm đang hiển thị.
   </div>
 

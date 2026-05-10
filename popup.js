@@ -372,8 +372,8 @@ chrome.storage.local.get(null, (data) => {
     document.querySelectorAll('.tab').forEach(t => {
       t.classList.toggle('active', t.dataset.provider === data.provider);
     });
-    updateModelOptions(data.provider);
   }
+  updateModelOptions(currentProvider);
   const savedKey = data[`apiKey_${currentProvider}`] || data.apiKey || '';
   if (savedKey) {
     apiKeyInput.value = savedKey;

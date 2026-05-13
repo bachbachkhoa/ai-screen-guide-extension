@@ -6,7 +6,6 @@
   "description": "__MSG_appDescription__",
   "permissions": [
     "activeTab",
-    "tabs",
     "storage",
     "scripting"
   ],

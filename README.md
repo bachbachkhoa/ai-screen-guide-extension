@@ -44,3 +44,11 @@ Click **Add screen region** to drag-select specific areas of the page. Up to 5 r
 
 - `popup.js`: add a new provider to the `PROVIDERS` object
 - `content.js`: `injectHighlightsForStep` — customize highlight color and animation
+
+## Contributing
+
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting a pull request.
+
+## License
+
+[MIT](LICENSE)
